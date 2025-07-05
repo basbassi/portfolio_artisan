@@ -1,0 +1,362 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.name }} | Portfolio de {{ artisan.username }}{% endblock %}
+
+{% block content %}
+<div class="product-detail-container">
+    <!-- Product Header -->
+    <div class="product-header">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/{{ artisan.username }}/">Portfolio</a></li>
+                <li class="breadcrumb-item"><a href="/{{ artisan.username }}/category/{{ product.category.id }}/">{{ product.category.name }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+            </ol>
+        </nav>
+        <h1>{{ product.name }}</h1>
+        <div class="product-meta">
+            <span class="category-badge">{{ product.category.name }}</span>
+            <span class="date-added">Ajouté le {{ product.created_at|date:"d/m/Y" }}</span>
+        </div>
+    </div>
+
+    <!-- Product Content -->
+    <div class="product-content">
+        <div class="product-gallery">
+            {% if product.image %}
+            <div class="main-image">
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid">
+            </div>
+            {% else %}
+            <div class="image-placeholder">
+                <i class="fas fa-image"></i>
+                <span>Image non disponible</span>
+            </div>
+            {% endif %}
+            
+            <!-- Thumbnails would go here if multiple images -->
+        </div>
+
+        <div class="product-info">
+            <div class="product-description">
+                <h2>Description</h2>
+                <p>{{ product.description }}</p>
+            </div>
+
+            <!-- Additional Details Section -->
+            <div class="product-details">
+                {% if product.materials %}
+                <div class="detail-item">
+                    <h3><i class="fas fa-hammer"></i> Matériaux</h3>
+                    <p>{{ product.materials }}</p>
+                </div>
+                {% endif %}
+                
+                {% if product.dimensions %}
+                <div class="detail-item">
+                    <h3><i class="fas fa-ruler-combined"></i> Dimensions</h3>
+                    <p>{{ product.dimensions }}</p>
+                </div>
+                {% endif %}
+                
+                {% if product.price %}
+                <div class="detail-item">
+                    <h3><i class="fas fa-tag"></i> Prix</h3>
+                    <p class="price">{{ product.price }} €</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="product-actions">
+                <a href="/{{ artisan.username }}/category/{{ product.category.id }}/" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Retour à la catégorie
+                </a>
+                <a class="btn-contact" href="https://wa.me/{{ artisan.profile.whatsapp|urlencode }}" target="_blank">
+                <i class="fab fa-whatsapp"></i> Contacter sur WhatsApp
+            </a>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contact Modal -->
+<div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Contactez {{ artisan.username }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="contactForm">
+                    <div class="mb-3">
+                        <label for="contactSubject" class="form-label">Objet</label>
+                        <input type="text" class="form-control" id="contactSubject" value="À propos de {{ product.name }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="contactMessage" class="form-label">Message</label>
+                        <textarea class="form-control" id="contactMessage" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Envoyer</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+:root {
+    --primary-color: #4361ee;
+    --secondary-color: #3f37c9;
+    --accent-color: #4895ef;
+    --dark-color: #1a1a2e;
+    --light-color: #f8f9fa;
+    --gray-color: #6c757d;
+    --light-gray: #e9ecef;
+    --border-radius: 12px;
+    --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.product-detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    background: transparent;
+    padding: 0.5rem 0;
+    font-size: 0.9rem;
+}
+
+.breadcrumb-item a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.breadcrumb-item a:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
+.breadcrumb-item.active {
+    color: var(--gray-color);
+}
+
+/* Product Header */
+.product-header {
+    margin-bottom: 2rem;
+}
+
+.product-header h1 {
+    font-size: 2.2rem;
+    color: var(--dark-color);
+    margin: 0.5rem 0;
+}
+
+.product-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.category-badge {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.date-added {
+    color: var(--gray-color);
+    font-size: 0.9rem;
+}
+
+/* Product Content */
+.product-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.product-gallery {
+    position: relative;
+}
+
+.main-image {
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    box-shadow: var(--box-shadow);
+}
+
+.main-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: var(--transition);
+}
+
+.main-image:hover img {
+    transform: scale(1.02);
+}
+
+.image-placeholder {
+    height: 400px;
+    background-color: var(--light-gray);
+    border-radius: var(--border-radius);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-color);
+}
+
+.image-placeholder i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* Product Info */
+.product-info {
+    padding: 0 1rem;
+}
+
+.product-description h2 {
+    font-size: 1.5rem;
+    color: var(--dark-color);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--light-gray);
+}
+
+.product-description p {
+    line-height: 1.7;
+    color: var(--dark-color);
+}
+
+/* Product Details */
+.product-details {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background-color: var(--light-color);
+    border-radius: var(--border-radius);
+}
+
+.detail-item {
+    margin-bottom: 1.5rem;
+}
+
+.detail-item:last-child {
+    margin-bottom: 0;
+}
+
+.detail-item h3 {
+    font-size: 1.1rem;
+    color: var(--dark-color);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.detail-item p {
+    margin: 0;
+    color: var(--gray-color);
+}
+
+.price {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+/* Product Actions */
+.product-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.btn-back {
+    background: white;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: var(--transition);
+}
+
+.btn-back:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-contact {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-contact:hover {
+    background: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: var(--box-shadow);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .product-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .product-gallery {
+        margin-bottom: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .product-actions {
+        flex-direction: column;
+    }
+    
+    .btn-back, .btn-contact {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Contact form handling
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Here you would typically send the form data to your backend
+            alert('Message envoyé avec succès !');
+            const modal = bootstrap.Modal.getInstance(document.getElementById('contactModal'));
+            modal.hide();
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}Connexion{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- Carte avec ombre pour le formulaire -->
+            <div class="card border-0 shadow-sm rounded-lg">
+                <div class="card-body p-5">
+                    <!-- Titre avec icône -->
+                    <h2 class="mb-4 text-center">
+                        <i class="fas fa-sign-in-alt text-primary me-2"></i>Se connecter
+                    </h2>
+                    
+                    <!-- Formulaire original préservé -->
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary py-2">
+                                <i class="fas fa-sign-in-alt me-2"></i>Connexion
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <!-- Lien d'inscription -->
+                    <p class="mt-4 text-center">
+                        Pas encore inscrit ? <a href="{% url 'signup' %}" class="text-primary fw-bold">Créer un compte</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Style pour les champs du formulaire */
+    form p {
+        margin-bottom: 1.5rem;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--dark-color);
+    }
+    
+    input[type="text"],
+    input[type="password"] {
+        width: 100%;
+        padding: 12px 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        transition: all 0.3s;
+    }
+    
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(58, 80, 107, 0.25);
+        outline: none;
+    }
+    
+    /* Style pour le bouton */
+    .btn-primary {
+        background-color: var(--primary-color);
+        border: none;
+        padding: 10px 24px;
+        font-weight: 500;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--dark-color);
+        transform: translateY(-2px);
+    }
+    
+    /* Style pour les liens */
+    a {
+        text-decoration: none;
+        transition: all 0.3s;
+    }
+    
+    a:hover {
+        color: var(--secondary-color) !important;
+    }
+    
+    /* Responsive */
+    @media (max-width: 576px) {
+        .card-body {
+            padding: 2rem;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,454 @@
+{% extends 'base.html' %}
+
+{% block title %}Portfolio de {{ artisan.first_name }} {{ artisan.last_name }} | Artisan Professionnel{% endblock %}
+
+
+{% block content %}
+<div class="artisan-profile">
+    <!-- Hero Section -->
+    <div class="profile-hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content text-center py-5 position-relative">
+            <div class="profile-avatar mb-4">
+                {% if artisan.profile.photo and artisan.profile.photo.name %}
+                <img src="{{ artisan.profile.photo.url }}" class="profile-photo rounded-circle shadow-lg" alt="Photo de {{ artisan.username }}">
+                {% else %}
+                <div class="avatar-placeholder rounded-circle shadow-lg">
+                    <i class="fas fa-user-cog"></i>
+                </div>
+                {% endif %}
+            </div>
+            <h1 class="display-4 mb-3 text-white">{{ artisan.first_name }} {{ artisan.last_name }}</h1>
+
+            <div class="profile-badge">
+                <span class="badge bg-primary">{{ artisan.profile.metier|default:"Artisan Professionnel" }}</span>
+            </div>
+            <div class="profile-social mt-4">
+                {% if artisan.profile.website %}
+                <a href="{{ artisan.profile.website }}" target="_blank" class="social-link"><i class="fas fa-globe"></i></a>
+                {% endif %}
+                {% if artisan.profile.facebook %}
+                <a href="{{ artisan.profile.facebook }}" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                {% endif %}
+                {% if artisan.profile.instagram %}
+                <a href="{{ artisan.profile.instagram }}" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
+                {% endif %}
+                {% if artisan.profile.linkedin %}
+                <a href="{{ artisan.profile.linkedin }}" target="_blank" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container py-5">
+        <!-- About Section -->
+        <div class="row mb-5">
+            <div class="col-lg-8 mx-auto text-center">
+                <h2 class="section-title mb-4">À propos de moi</h2>
+                {% if artisan.profile.description %}
+                <p class="lead text-muted">{{ artisan.profile.description }}</p>
+                {% else %}
+                <p class="text-muted">Artisan passionné avec plusieurs années d'expérience dans mon domaine.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Contact & Info Section -->
+        <div class="row mb-5">
+            <div class="col-md-6 mb-4 mb-md-0">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h3 class="h4 card-title mb-4"><i class="fas fa-id-card me-2 text-primary"></i>Coordonnées</h3>
+                        <div class="contact-info">
+                            {% if artisan.profile.telephone %}
+                            <div class="contact-item mb-3">
+                                <i class="fas fa-phone fa-fw text-primary"></i>
+                                <a href="tel:{{ artisan.profile.telephone }}" class="contact-link">{{ artisan.profile.telephone }}</a>
+                            </div>
+                            {% endif %}
+                            
+                            {% if artisan.email %}
+                            <div class="contact-item mb-3">
+                                <i class="fas fa-envelope fa-fw text-primary"></i>
+                                <a href="mailto:{{ artisan.email }}" class="contact-link">{{ artisan.email }}</a>
+                            </div>
+                            {% endif %}
+                            
+                            {% if artisan.profile.adresse %}
+                            <div class="contact-item">
+                                <i class="fas fa-map-marker-alt fa-fw text-primary"></i>
+                                <span class="contact-text">{{ artisan.profile.adresse }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h3 class="h4 card-title mb-4"><i class="fas fa-award me-2 text-primary"></i>Compétences</h3>
+                        <div class="skills-list">
+                            {% if artisan.profile.competences %}
+                                {% for competence in artisan.profile.competences_as_list %}
+                                <span class="skill-badge">{{ competence }}</span>
+                                {% endfor %}
+                            {% else %}
+                            <p class="text-muted mb-0">Compétences non spécifiées</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Categories Section -->
+        <div class="categories-section mb-5">
+            <div class="section-header d-flex justify-content-between align-items-center mb-4">
+                <h2 class="section-title mb-0">Mes Spécialités</h2>
+                {% if categories|length > 3 %}
+                <a href="#" class="btn btn-outline-primary btn-sm">Voir tout</a>
+                {% endif %}
+            </div>
+            
+            {% if categories %}
+            <div class="categories-grid">
+                {% for category in categories %}
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-{{ category.icon|default:'tools' }}"></i>
+                    </div>
+                    <h3 class="category-title">{{ category.name }}</h3>
+                    <p class="category-description text-muted small">{{ category.description|default:"Spécialité d'excellence" }}</p>
+                    <a href="/{{ artisan.username }}/category/{{ category.id }}/" class="btn btn-outline-primary btn-sm">
+                        Voir les réalisations <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state text-center py-5">
+                <i class="fas fa-box-open fa-3x mb-3 text-muted"></i>
+                <p class="text-muted">Aucune catégorie disponible pour le moment</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Testimonials Section -->
+        <div class="testimonials-section mb-5">
+            <h2 class="section-title mb-4">Témoignages</h2>
+            <div class="testimonials-slider">
+                <!-- Placeholder for testimonials -->
+                <div class="testimonial-card">
+                    <div class="testimonial-content">
+                        <p class="testimonial-text">"Travail exceptionnel et professionnel. Je recommande vivement ce artisan pour la qualité de ses réalisations."</p>
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="author-info">
+                            <h5 class="author-name mb-0">Jean Dupont</h5>
+                            <p class="author-position small text-muted mb-0">Client satisfait</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --primary-color: #4e66f8;
+        --primary-dark: #3a4fc8;
+        --primary-light: #eef1ff;
+        --secondary-color: #6c757d;
+        --dark-color: #2d3748;
+        --light-color: #f8f9fa;
+        --border-radius: 12px;
+        --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        --transition: all 0.3s ease;
+        --gradient: linear-gradient(135deg, var(--primary-color) 0%, #6a11cb 100%);
+    }
+
+    body {
+        font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        color: #4a5568;
+        line-height: 1.6;
+    }
+
+    .artisan-profile {
+        background-color: #f8fafc;
+    }
+
+    .profile-hero {
+        position: relative;
+        background: var(--gradient);
+        padding: 4rem 0;
+        margin-bottom: 3rem;
+        overflow: hidden;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: url('https://images.unsplash.com/photo-1605106702734-205df224ecce?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') center/cover;
+        opacity: 0.1;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+
+    .profile-photo {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border: 5px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .avatar-placeholder {
+        width: 150px;
+        height: 150px;
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        margin: 0 auto;
+    }
+
+    .profile-badge .badge {
+        font-size: 1rem;
+        padding: 0.5rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        background-color: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .profile-social {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .social-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        transition: var(--transition);
+    }
+
+    .social-link:hover {
+        background-color: white;
+        color: var(--primary-color);
+        transform: translateY(-3px);
+    }
+
+    .section-title {
+        position: relative;
+        display: inline-block;
+        color: var(--dark-color);
+        font-weight: 600;
+    }
+
+    .section-title:after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: -8px;
+        width: 40px;
+        height: 4px;
+        background: var(--gradient);
+        border-radius: 2px;
+    }
+
+    .card {
+        border: none;
+        border-radius: var(--border-radius);
+        transition: var(--transition);
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    }
+
+    .contact-info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 0.5rem 0;
+    }
+
+    .contact-link, .contact-text {
+        color: var(--dark-color);
+        text-decoration: none;
+        transition: var(--transition);
+    }
+
+    .contact-link:hover {
+        color: var(--primary-color);
+        text-decoration: underline;
+    }
+
+    .skills-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .skill-badge {
+        background-color: var(--primary-light);
+        color: var(--primary-dark);
+        padding: 0.35rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .categories-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .category-card {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        text-align: center;
+        box-shadow: var(--box-shadow);
+        transition: var(--transition);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .category-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+    }
+
+    .category-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 1.75rem;
+        color: white;
+    }
+
+    .category-title {
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+        font-weight: 600;
+        color: var(--dark-color);
+    }
+
+    .category-description {
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-state {
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--box-shadow);
+        padding: 3rem;
+    }
+
+    .testimonials-slider {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .testimonial-card {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        box-shadow: var(--box-shadow);
+    }
+
+    .testimonial-text {
+        font-style: italic;
+        position: relative;
+        padding-left: 1.5rem;
+        border-left: 3px solid var(--primary-color);
+    }
+
+    .testimonial-author {
+        display: flex;
+        align-items: center;
+        margin-top: 1.5rem;
+    }
+
+    .author-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: var(--primary-light);
+        color: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+    }
+
+    .author-name {
+        font-weight: 600;
+        color: var(--dark-color);
+    }
+
+    @media (max-width: 768px) {
+        .profile-photo, .avatar-placeholder {
+            width: 120px;
+            height: 120px;
+        }
+        
+        .categories-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .hero-content {
+            padding: 2rem 0;
+        }
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .profile-hero, .categories-section, .testimonials-section {
+        animation: fadeIn 0.8s ease-out forwards;
+    }
+</style>
+{% endblock %}

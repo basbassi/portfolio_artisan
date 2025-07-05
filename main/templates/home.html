@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil Artisan{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container text-center">
+        <h1 class="display-4 mb-4">Bienvenue sur Artisan Portfolio</h1>
+        <p class="lead mb-5">Créez votre site vitrine professionnel en quelques clics et mettez en valeur votre savoir-faire.</p>
+        <a href="{% url 'signup' %}" class="btn btn-primary btn-lg">
+            <i class="fas fa-rocket me-2"></i> Commencer maintenant
+        </a>
+    </div>
+</section>
+
+<div class="container my-5">
+    <div class="row text-center">
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm p-4">
+                <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-circle mx-auto mb-4" style="width: 80px; height: 80px; line-height: 80px;">
+                    <i class="fas fa-bolt fa-2x"></i>
+                </div>
+                <h3 class="h4">Rapide</h3>
+                <p class="text-muted">Créez votre site en moins de 5 minutes sans compétences techniques.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm p-4">
+                <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-circle mx-auto mb-4" style="width: 80px; height: 80px; line-height: 80px;">
+                    <i class="fas fa-mobile-alt fa-2x"></i>
+                </div>
+                <h3 class="h4">Responsive</h3>
+                <p class="text-muted">Votre site s'adapte parfaitement à tous les appareils.</p>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 border-0 shadow-sm p-4">
+                <div class="icon-box bg-primary bg-opacity-10 text-primary rounded-circle mx-auto mb-4" style="width: 80px; height: 80px; line-height: 80px;">
+                    <i class="fas fa-chart-line fa-2x"></i>
+                </div>
+                <h3 class="h4">Performant</h3>
+                <p class="text-muted">Des vitesses de chargement optimisées pour vos visiteurs.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row align-items-center my-5 py-5">
+        <div class="col-lg-6 mb-4 mb-lg-0">
+            <h2 class="mb-4">Mettez en valeur votre travail</h2>
+            <p class="lead">Notre plateforme vous permet de créer un portfolio professionnel qui reflète votre expertise et attire de nouveaux clients.</p>
+            <ul class="list-unstyled mt-4">
+                <li class="mb-2"><i class="fas fa-check-circle text-primary me-2"></i> Galerie photo/vidéo intégrée</li>
+                <li class="mb-2"><i class="fas fa-check-circle text-primary me-2"></i> Formulaire de contact sécurisé</li>
+                <li class="mb-2"><i class="fas fa-check-circle text-primary me-2"></i> Statistiques de visite</li>
+                <li class="mb-2"><i class="fas fa-check-circle text-primary me-2"></i> Optimisation pour le référencement</li>
+            </ul>
+        </div>
+        <div class="col-lg-6">
+            <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" alt="Artisan au travail" class="img-fluid rounded shadow">
+        </div>
+    </div>
+</div>
+
+<!-- Nouvelle section vidéo -->
+<section class="video-section bg-light py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="mb-4">Découvrez comment fonctionne notre plateforme</h2>
+                <p class="lead mb-5">Regardez cette courte vidéo pour comprendre comment créer votre site vitrine en quelques étapes simples.</p>
+                
+                <div class="ratio ratio-16x9 shadow-lg rounded">
+                    <!-- Remplacez l'URL par celle de votre vidéo -->
+                    <iframe src="https://www.youtube.com/embed/VOT5Q60bUZI" title="Présentation de Artisan Portfolio" allowfullscreen></iframe>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{% url 'signup' %}" class="btn btn-primary btn-lg mt-3">
+                        <i class="fas fa-play-circle me-2"></i> Essayer maintenant
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
