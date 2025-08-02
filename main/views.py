@@ -138,19 +138,23 @@ def calculate_profile_completion(profile):
 
 from django.http import Http404
 
+# views.py
 def presentation(request, username):
     user = get_object_or_404(User, username=username)
+    profile = user.profile
     categories = Category.objects.filter(product__artisan=user).distinct()
-
+    
+    # Obtenez l'image hero en fonction du métier
+    default_hero = 'static/default_hero.jpg'  # Image par défaut
+    hero_image = profile.metier.hero_image.url if (profile.metier and profile.metier.hero_image) else default_hero
+    
     for category in categories:
-        # Récupérer le premier produit avec image dans cette catégorie
         product_with_image = Product.objects.filter(
             artisan=user,
             category=category,
             image__isnull=False
         ).first()
-
-        # Ajouter l'URL de l'image à la catégorie
+        
         if product_with_image and product_with_image.image:
             category.preview_image = product_with_image.image
         else:
@@ -158,7 +162,8 @@ def presentation(request, username):
 
     return render(request, 'presentation.html', {
         'artisan': user,
-        'categories': categories
+        'categories': categories,
+        'hero_image': hero_image
     })
 
 

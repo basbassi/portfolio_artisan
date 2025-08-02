@@ -6,6 +6,7 @@ from django.urls import reverse
 
 class Metier(models.Model):
     name = models.CharField(max_length=100)
+    hero_image = models.ImageField(upload_to='metier_hero_images/', null=True, blank=True)
     
     def __str__(self):
         return self.name

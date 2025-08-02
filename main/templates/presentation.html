@@ -379,10 +379,10 @@
 
   <!-- Hero Image -->
   <section id="home" class="hero-section">
-    {% if artisan.profile.cover_photo %}
-      <img src="{{ artisan.profile.cover_photo.url }}" class="hero-image" alt="Atelier de {{ artisan.get_full_name }}">
+    {% if hero_image %}
+        <img src="{{ hero_image }}" class="hero-image" alt="Atelier de {{ artisan.get_full_name }}">
     {% else %}
-      <img src="{% static 'static/icons/2.jpeg' %}" class="hero-image" alt="Atelier de menuiserie">
+        <img src="{% static 'static/icons/2.jpeg' %}" class="hero-image" alt="Atelier de menuiserie">
     {% endif %}
   </section>
 
