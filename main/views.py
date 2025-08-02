@@ -139,32 +139,45 @@ def calculate_profile_completion(profile):
 from django.http import Http404
 
 # views.py
+from django.shortcuts import render, get_object_or_404
+from django.template.loader import get_template
+from django.http import Http404
+from .models import User, Profile, Category, Product
+
 def presentation(request, username):
     user = get_object_or_404(User, username=username)
     profile = user.profile
     categories = Category.objects.filter(product__artisan=user).distinct()
     
     # Obtenez l'image hero en fonction du métier
-    default_hero = 'static/default_hero.jpg'  # Image par défaut
+    default_hero = 'static/default_hero.jpg'
     hero_image = profile.metier.hero_image.url if (profile.metier and profile.metier.hero_image) else default_hero
     
+    # Préparation des données de catégories
     for category in categories:
         product_with_image = Product.objects.filter(
             artisan=user,
             category=category,
             image__isnull=False
         ).first()
-        
-        if product_with_image and product_with_image.image:
-            category.preview_image = product_with_image.image
-        else:
-            category.preview_image = None
+        category.preview_image = product_with_image.image if product_with_image else None
 
-    return render(request, 'presentation.html', {
+    # Construction du contexte
+    context = {
         'artisan': user,
         'categories': categories,
-        'hero_image': hero_image
-    })
+        'hero_image': hero_image,
+        'profile': profile  # Ajout du profil au contexte
+    }
+
+    # Sélection dynamique du template
+    template_name = f"presentation_{profile.template}.html"
+    
+    try:
+        return render(request, template_name, context)
+    except:
+        # Fallback au template classique si le template spécifié n'existe pas
+        return render(request, 'presentation_classic.html', context)
 
 
 # Dans views.py
@@ -465,3 +478,20 @@ def contact_artisan(request, username):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+# views.py
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from .forms import TemplateForm
+
+@login_required
+def change_template(request):
+    profile = request.user.profile
+    if request.method == 'POST':
+        form = TemplateForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard')
+    else:
+        form = TemplateForm(instance=profile)
+    
+    return render(request, 'change_template.html', {'form': form})

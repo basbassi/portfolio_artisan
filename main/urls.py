@@ -14,6 +14,7 @@ urlpatterns = [
     path('update-profile/', views.update_profile, name='update_profile'),
     path('<username>/contact/', contact_artisan, name='contact_artisan'),
     path('generate-card/', views.generate_business_card, name='generate_business_card'),
+    path('change-template/', views.change_template, name='change_template'),
     path('download-qr-code/', download_qr_code, name='download_qr_code'),
     path('congratulations/', congratulations, name='congratulations'),
     path('<username>/', views.presentation, name='presentation'),

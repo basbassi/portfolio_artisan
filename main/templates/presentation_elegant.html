@@ -1,0 +1,1143 @@
+{% extends 'base_minimal.html' %}
+{% load static %}
+
+{% block title %}{{ artisan.get_full_name }} | {{ artisan.profile.metier }}{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #0f0f0f;
+      --secondary-color: #1a1a1a;
+      --accent-color: #00ff88;
+      --text-color: #e0e0e0;
+      --text-light: #b0b0b0;
+      --neon-effect: 0 0 10px rgba(0, 255, 136, 0.7);
+    }
+    
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      color: var(--text-color);
+      background-color: var(--primary-color);
+      overflow-x: hidden;
+      line-height: 1.7;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+    
+    /* Navigation futuriste */
+    .navbar {
+      background-color: rgba(15, 15, 15, 0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+      padding: 1.5rem 0;
+    }
+    
+    .navbar-brand {
+      font-size: 1.8rem;
+      color: var(--accent-color) !important;
+      text-shadow: var(--neon-effect);
+    }
+    
+    .nav-link {
+      color: var(--text-light) !important;
+      margin: 0 1rem;
+      position: relative;
+      padding: 0.5rem 0 !important;
+      font-weight: 500;
+    }
+    
+    .nav-link:before {
+      content: '//';
+      position: absolute;
+      left: -15px;
+      color: var(--accent-color);
+      opacity: 0;
+      transition: all 0.3s;
+    }
+    
+    .nav-link:hover,
+    .nav-link.active {
+      color: var(--accent-color) !important;
+    }
+    
+    .nav-link:hover:before,
+    .nav-link.active:before {
+      opacity: 1;
+    }
+    
+    /* Hero Section Cyberpunk */
+    .hero-section {
+      height: 100vh;
+      min-height: 800px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      background: radial-gradient(circle at 70% 30%, #1a1a1a 0%, #0f0f0f 70%);
+    }
+    
+    .hero-grid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: 
+        linear-gradient(rgba(0, 255, 136, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 136, 0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+      z-index: 1;
+    }
+    
+    .hero-content {
+      position: relative;
+      z-index: 3;
+    }
+    
+    .hero-title {
+      font-size: 5rem;
+      line-height: 1;
+      margin-bottom: 1.5rem;
+      background: linear-gradient(to right, #fff 30%, var(--accent-color));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-transform: uppercase;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.5rem;
+      color: var(--text-light);
+      margin-bottom: 3rem;
+      max-width: 600px;
+    }
+    
+    .hero-highlight {
+      color: var(--accent-color);
+      position: relative;
+      display: inline-block;
+    }
+    
+    .hero-highlight:after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background-color: var(--accent-color);
+      box-shadow: var(--neon-effect);
+    }
+    
+    /* Bouton Cyber */
+    .btn-cyber {
+      background-color: transparent;
+      color: var(--accent-color);
+      border: 2px solid var(--accent-color);
+      padding: 1rem 2.5rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.5s;
+      box-shadow: var(--neon-effect);
+    }
+    
+    .btn-cyber:hover {
+      background-color: var(--accent-color);
+      color: var(--primary-color);
+      transform: translateY(-5px);
+      box-shadow: 0 5px 20px rgba(0, 255, 136, 0.5);
+    }
+    
+    .btn-cyber:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.2), transparent);
+      transition: all 0.5s;
+    }
+    
+    .btn-cyber:hover:before {
+      left: 100%;
+    }
+    
+    /* Section Styles */
+    .section {
+      padding: 8rem 0;
+      position: relative;
+    }
+    
+    .section-title {
+      font-size: 3.5rem;
+      margin-bottom: 3rem;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .section-title:after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 100px;
+      height: 5px;
+      background-color: var(--accent-color);
+      box-shadow: var(--neon-effect);
+    }
+    
+    /* Carte Profil Holographique */
+    .profile-card {
+      background: rgba(26, 26, 26, 0.6);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 255, 136, 0.1);
+      border-radius: 5px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      transition: all 0.5s;
+      position: relative;
+    }
+    
+    .profile-card:before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, var(--accent-color), #00b3ff, var(--accent-color));
+      background-size: 200% 200%;
+      z-index: -1;
+      animation: gradientBorder 4s ease infinite;
+      border-radius: 6px;
+    }
+    
+    @keyframes gradientBorder {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    .profile-img-container {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .profile-img {
+      width: 100%;
+      height: 400px;
+      object-fit: cover;
+      filter: grayscale(30%) contrast(110%);
+      transition: all 0.8s;
+    }
+    
+    .profile-card:hover .profile-img {
+      transform: scale(1.05);
+      filter: grayscale(0%) contrast(120%);
+    }
+    
+    .profile-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(15, 15, 15, 0.9), transparent);
+      padding: 2rem;
+    }
+    
+    .profile-name {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: white;
+    }
+    
+    .profile-title {
+      color: var(--accent-color);
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+    }
+    
+    /* Compétences Techno */
+    .skill-item {
+      margin-bottom: 2rem;
+    }
+    
+    .skill-name {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.8rem;
+      font-weight: 500;
+    }
+    
+    .skill-bar {
+      height: 8px;
+      background-color: rgba(255, 255, 255, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .skill-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(to right, var(--accent-color), #00b3ff);
+      transition: width 1.5s ease-in-out;
+      box-shadow: var(--neon-effect);
+    }
+    
+    /* Portfolio Digital */
+    .portfolio-item {
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 30px;
+      border-radius: 5px;
+      transition: all 0.5s;
+    }
+    
+    .portfolio-img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      filter: contrast(110%) brightness(0.8);
+      transition: all 0.8s;
+    }
+    
+    .portfolio-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 255, 136, 0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: all 0.5s;
+      padding: 2rem;
+      text-align: center;
+      color: var(--primary-color);
+    }
+    
+    .portfolio-item:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0, 255, 136, 0.3);
+    }
+    
+    .portfolio-item:hover .portfolio-overlay {
+      opacity: 1;
+    }
+    
+    .portfolio-item:hover .portfolio-img {
+      filter: contrast(120%) brightness(1);
+      transform: scale(1.1);
+    }
+    
+    .portfolio-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      color: var(--primary-color);
+    }
+    
+    /* Témoignages Glitch */
+    .testimonial-card {
+      background: rgba(26, 26, 26, 0.7);
+      border: 1px solid rgba(0, 255, 136, 0.2);
+      padding: 2.5rem;
+      margin: 1rem;
+      transition: all 0.5s;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .testimonial-card:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background-color: var(--accent-color);
+    }
+    
+    .testimonial-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 10px 30px rgba(0, 255, 136, 0.2);
+    }
+    
+    .testimonial-text {
+      position: relative;
+      font-style: italic;
+      margin-bottom: 2rem;
+    }
+    
+    .testimonial-text:before {
+      content: '"';
+      position: absolute;
+      top: -30px;
+      left: -20px;
+      font-size: 5rem;
+      color: rgba(0, 255, 136, 0.1);
+      font-family: serif;
+    }
+    
+    .client-info {
+      display: flex;
+      align-items: center;
+    }
+    
+    .client-img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 1.5rem;
+      border: 2px solid var(--accent-color);
+    }
+    
+    .client-name {
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+    
+    .client-position {
+      color: var(--accent-color);
+      font-size: 0.9rem;
+    }
+    
+    /* Contact Futuriste */
+    .contact-form .form-control {
+      background-color: transparent;
+      border: none;
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 0;
+      color: white;
+      padding: 1rem 0;
+      margin-bottom: 2rem;
+      font-weight: 500;
+    }
+    
+    .contact-form .form-control:focus {
+      box-shadow: none;
+      border-bottom-color: var(--accent-color);
+    }
+    
+    .contact-form textarea {
+      min-height: 150px;
+    }
+    
+    .contact-info-item {
+      display: flex;
+      margin-bottom: 2rem;
+    }
+    
+    .contact-icon {
+      width: 60px;
+      height: 60px;
+      background-color: rgba(0, 255, 136, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1.5rem;
+      color: var(--accent-color);
+      font-size: 1.5rem;
+      border-radius: 50%;
+    }
+    
+    .contact-label {
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      color: var(--accent-color);
+    }
+    
+    .contact-value {
+      color: var(--text-light);
+    }
+    
+    /* Footer Cyber */
+    .footer {
+      background-color: var(--secondary-color);
+      padding: 5rem 0 2rem;
+      position: relative;
+    }
+    
+    .footer:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--accent-color), transparent);
+    }
+    
+    .footer-title {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .footer-title:after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 40px;
+      height: 3px;
+      background-color: var(--accent-color);
+    }
+    
+    .footer-links a {
+      color: var(--text-light);
+      display: block;
+      margin-bottom: 0.8rem;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+    
+    .footer-links a:hover {
+      color: var(--accent-color);
+      transform: translateX(5px);
+    }
+    
+    .social-links a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      background-color: rgba(0, 255, 136, 0.1);
+      color: var(--accent-color);
+      border-radius: 50%;
+      margin-right: 1rem;
+      transition: all 0.3s;
+      font-size: 1.2rem;
+    }
+    
+    .social-links a:hover {
+      background-color: var(--accent-color);
+      color: var(--primary-color);
+      transform: translateY(-5px);
+    }
+    
+    .copyright {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 2rem;
+      margin-top: 3rem;
+      color: var(--text-light);
+    }
+    
+    /* Effet Flottant */
+    .floating-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 70px;
+      height: 70px;
+      background-color: var(--accent-color);
+      color: var(--primary-color);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      box-shadow: 0 5px 25px rgba(0, 255, 136, 0.5);
+      z-index: 100;
+      transition: all 0.4s;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
+      70% { box-shadow: 0 0 0 15px rgba(0, 255, 136, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+    }
+    
+    .floating-btn:hover {
+      transform: scale(1.1) rotate(90deg);
+      animation: none;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+      .hero-title {
+        font-size: 4rem;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 3rem;
+      }
+      
+      .section {
+        padding: 5rem 0;
+      }
+      
+      .profile-img {
+        height: 350px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation Futuriste -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        {{ artisan.get_full_name|slice:":1" }}<span style="color: var(--accent-color);">{{ artisan.get_full_name|slice:"1:2" }}</span>{{ artisan.get_full_name|slice:"2:" }}
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="#home">ACCUEIL</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#about">À PROPOS</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#portfolio">PORTFOLIO</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#testimonials">TÉMOIGNAGES</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#contact">CONTACT</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section Cyberpunk -->
+  <section id="home" class="hero-section">
+    <div class="hero-grid"></div>
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-lg-7">
+          <div class="hero-content">
+            <h1 class="hero-title">{{ artisan.get_full_name|upper }}</h1>
+            <p class="hero-subtitle">
+              <span class="hero-highlight">{{ artisan.profile.metier|default:"MAÎTRE ARTISAN" }}</span> avec {{ artisan.profile.experience_years|default:"15" }} ans d'expérience dans la création de pièces uniques
+            </p>
+            <a href="#contact" class="btn btn-cyber">CONTACTER</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section Holographique -->
+  <section id="about" class="section">
+    <div class="container">
+      <div class="row justify-content-center mb-5">
+        <div class="col-lg-8 text-center">
+          <h2 class="section-title">MON EXPERTISE</h2>
+          <p class="text-light">Un savoir-faire artisanal réinventé pour l'ère numérique</p>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-lg-6 mb-5 mb-lg-0">
+          <div class="profile-card">
+            <div class="profile-img-container">
+              {% if artisan.profile.photo %}
+                <img src="{{ artisan.profile.photo.url }}" class="profile-img" alt="{{ artisan.get_full_name }}">
+              {% else %}
+                <div class="profile-img d-flex align-items-center justify-content-center" style="background-color: var(--secondary-color);">
+                  <i class="fas fa-user-astronaut fa-5x" style="color: var(--accent-color);"></i>
+                </div>
+              {% endif %}
+              <div class="profile-overlay">
+                <h3 class="profile-name">{{ artisan.get_full_name }}</h3>
+                <p class="profile-title">{{ artisan.profile.metier|default:"MAÎTRE ARTISAN" }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-6">
+          <div class="px-4">
+            <h3 class="mb-4" style="color: var(--accent-color);">// À PROPOS DE MOI</h3>
+            
+            {% if artisan.profile.description %}
+              <p class="mb-5">{{ artisan.profile.description|linebreaks }}</p>
+            {% else %}
+              <p class="mb-5">Artisan du futur, je fusionne techniques ancestrales et technologies modernes pour créer des pièces uniques où tradition et innovation se rencontrent.</p>
+            {% endif %}
+            
+            <div class="row">
+              <div class="col-md-6 mb-4">
+                <div class="d-flex align-items-center">
+                  <div class="me-3" style="color: var(--accent-color);">
+                    <i class="fas fa-medal fa-2x"></i>
+                  </div>
+                  <div>
+                    <h5 style="color: var(--accent-color);">EXPÉRIENCE</h5>
+                    <p>{{ artisan.profile.experience_years|default:"15" }} ans d'expertise</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-4">
+                <div class="d-flex align-items-center">
+                  <div class="me-3" style="color: var(--accent-color);">
+                    <i class="fas fa-map-marker-alt fa-2x"></i>
+                  </div>
+                  <div>
+                    <h5 style="color: var(--accent-color);">LOCALISATION</h5>
+                    <p>{{ artisan.profile.ville|default:"Non renseigné" }}, {{ artisan.profile.pays|default:"" }}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-4">
+                <div class="d-flex align-items-center">
+                  <div class="me-3" style="color: var(--accent-color);">
+                    <i class="fas fa-phone fa-2x"></i>
+                  </div>
+                  <div>
+                    <h5 style="color: var(--accent-color);">TÉLÉPHONE</h5>
+                    <p>{{ artisan.profile.telephone|default:"Non renseigné" }}</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="col-md-6 mb-4">
+                <div class="d-flex align-items-center">
+                  <div class="me-3" style="color: var(--accent-color);">
+                    <i class="fas fa-envelope fa-2x"></i>
+                  </div>
+                  <div>
+                    <h5 style="color: var(--accent-color);">EMAIL</h5>
+                    <p>{{ artisan.email }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-5">
+              <h4 class="mb-4" style="color: var(--accent-color);">// MES COMPÉTENCES</h4>
+              
+              <div class="skill-item">
+                <div class="skill-name">
+                  <span>Précision numérique</span>
+                  <span>95%</span>
+                </div>
+                <div class="skill-bar">
+                  <div class="skill-progress" style="width: 95%"></div>
+                </div>
+              </div>
+              
+              <div class="skill-item">
+                <div class="skill-name">
+                  <span>Conception 3D</span>
+                  <span>90%</span>
+                </div>
+                <div class="skill-bar">
+                  <div class="skill-progress" style="width: 90%"></div>
+                </div>
+              </div>
+              
+              <div class="skill-item">
+                <div class="skill-name">
+                  <span>Innovation</span>
+                  <span>85%</span>
+                </div>
+                <div class="skill-bar">
+                  <div class="skill-progress" style="width: 85%"></div>
+                </div>
+              </div>
+              
+              <div class="skill-item">
+                <div class="skill-name">
+                  <span>Finitions haute-tech</span>
+                  <span>98%</span>
+                </div>
+                <div class="skill-bar">
+                  <div class="skill-progress" style="width: 98%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Portfolio Section Digital -->
+  <section id="portfolio" class="section bg-dark">
+    <div class="container">
+      <div class="row justify-content-center mb-5">
+        <div class="col-lg-8 text-center">
+          <h2 class="section-title">MON PORTFOLIO</h2>
+          <p class="text-light">Une galerie de mes créations les plus avant-gardistes</p>
+        </div>
+      </div>
+      
+      <div class="row">
+        {% if categories %}
+          {% for category in categories %}
+            <div class="col-lg-4 col-md-6 mb-4">
+              <div class="portfolio-item">
+                <a href="{% url 'products_by_category' username=artisan.username category_id=category.id %}">
+                  {% if category.preview_image %}
+                    <img src="{{ category.preview_image.url }}" class="portfolio-img" alt="{{ category.name }}">
+                  {% else %}
+                    <div class="portfolio-img d-flex align-items-center justify-content-center" style="background-color: var(--secondary-color);">
+                      <i class="fas fa-cubes fa-3x" style="color: var(--accent-color);"></i>
+                    </div>
+                  {% endif %}
+                  <div class="portfolio-overlay">
+                    <h4 class="portfolio-title">{{ category.name|upper }}</h4>
+                    <p>EXPLORER LES CRÉATIONS</p>
+                  </div>
+                </a>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="col-12 text-center py-5">
+            <i class="fas fa-box-open fa-3x mb-3" style="color: var(--accent-color);"></i>
+            <h3>PORTFOLIO EN CONSTRUCTION</h3>
+            <p class="text-light">Mes dernières créations seront bientôt disponibles</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section Glitch -->
+  <section id="testimonials" class="section">
+    <div class="container">
+      <div class="row justify-content-center mb-5">
+        <div class="col-lg-8 text-center">
+          <h2 class="section-title">TÉMOIGNAGES CLIENTS</h2>
+          <p class="text-light">Ce que disent ceux qui ont expérimenté mon travail</p>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-4 mb-4">
+          <div class="testimonial-card">
+            <div class="mb-3" style="color: var(--accent-color);">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">Un travail absolument remarquable ! {{ artisan.first_name }} a su comprendre exactement ce que je voulais et a livré un résultat bien au-delà de mes attentes.</p>
+            <div class="client-info">
+              <img src="https://randomuser.me/api/portraits/women/43.jpg" class="client-img" alt="Marie D.">
+              <div>
+                <h5 class="client-name">MARIE D.</h5>
+                <p class="client-position">Client particulier</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+          <div class="testimonial-card">
+            <div class="mb-3" style="color: var(--accent-color);">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">Professionalisme et créativité au rendez-vous. Les meubles réalisés pour notre salon sont d'une qualité exceptionnelle. Je recommande sans hésitation !</p>
+            <div class="client-info">
+              <img src="https://randomuser.me/api/portraits/men/32.jpg" class="client-img" alt="Pierre L.">
+              <div>
+                <h5 class="client-name">PIERRE L.</h5>
+                <p class="client-position">Architecte d'intérieur</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+          <div class="testimonial-card">
+            <div class="mb-3" style="color: var(--accent-color);">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star-half-alt"></i>
+            </div>
+            <p class="testimonial-text">Un artisan passionné qui prend le temps d'écouter et de conseiller. Le résultat final est magnifique et s'intègre parfaitement dans notre intérieur.</p>
+            <div class="client-info">
+              <img src="https://randomuser.me/api/portraits/women/65.jpg" class="client-img" alt="Sophie T.">
+              <div>
+                <h5 class="client-name">SOPHIE T.</h5>
+                <p class="client-position">Designer</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section - Version avec placeholders améliorés -->
+  <section id="contact" class="section bg-dark">
+    <div class="container">
+      <div class="row justify-content-center mb-5">
+        <div class="col-lg-8 text-center">
+          <h2 class="section-title">CONTACTEZ-MOI</h2>
+          <p class="text-light">Prêt à donner vie à votre projet ? Remplissez ce formulaire</p>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-lg-7 mb-5 mb-lg-0">
+          <form class="contact-form" method="post" action="{% url 'contact_artisan' artisan.username %}">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-md-6">
+                <input type="text" class="form-control" name="name" placeholder="Votre nom complet*" required
+                       onfocus="this.placeholder=''" 
+                       onblur="this.placeholder='Votre nom complet*'">
+              </div>
+              <div class="col-md-6">
+                <input type="email" class="form-control" name="email" placeholder="Votre email professionnel*" required
+                       onfocus="this.placeholder=''" 
+                       onblur="this.placeholder='Votre email professionnel*'">
+              </div>
+            </div>
+            <input type="text" class="form-control" name="subject" placeholder="Objet de votre message "
+                   onfocus="this.placeholder=''" 
+                   onblur="this.placeholder='Objet de votre message '">
+            <textarea class="form-control" rows="5" name="message" 
+                      placeholder="Décrivez votre projet en détail*" required
+                      onfocus="this.placeholder=''" 
+                      onblur="this.placeholder='Décrivez votre projet en détail*'"></textarea>
+            
+            <!-- Champ caché pour l'artisan -->
+            <input type="hidden" name="artisan_id" value="{{ artisan.id }}">
+            
+            <div class="mt-4 form-check">
+              <input type="checkbox" class="form-check-input" id="consent" required>
+              <label class="form-check-label text-light" for="consent">
+                J'accepte que mes données soient utilisées pour traiter ma demande*
+              </label>
+            </div>
+            
+            <button type="submit" class="btn btn-cyber mt-4">ENVOYER LA DEMANDE</button>
+          </form>
+        </div>
+        
+        <div class="col-lg-5">
+          <div class="contact-info-item">
+            <div class="contact-icon">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div>
+              <h4 class="contact-label">ATELIER</h4>
+              <p class="contact-value">
+                {% if artisan.profile.adresse %}
+                  {{ artisan.profile.adresse }}<br>
+                  {{ artisan.profile.code_postal }} {{ artisan.profile.ville|upper }}<br>
+                  {{ artisan.profile.pays }}
+                {% else %}
+                  <span class="text-muted">Adresse à confirmer</span>
+                {% endif %}
+              </p>
+            </div>
+          </div>
+          
+          <div class="contact-info-item">
+            <div class="contact-icon">
+              <i class="fas fa-phone"></i>
+            </div>
+            <div>
+              <h4 class="contact-label">RENDEZ-VOUS</h4>
+              <p class="contact-value">
+                {{ artisan.profile.telephone|default:"<span class='text-muted'>Numéro à confirmer</span>" }}
+              </p>
+              <small class="text-light">Du lundi au vendredi, 9h-12h / 14h-18h</small>
+            </div>
+          </div>
+          
+          <div class="contact-info-item">
+            <div class="contact-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <div>
+              <h4 class="contact-label">EMAIL PRO</h4>
+              <p class="contact-value">{{ artisan.email }}</p>
+              <small class="text-light">Réponse sous 48h ouvrées</small>
+            </div>
+          </div>
+          
+          <div class="contact-info-item">
+            <div class="contact-icon">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div>
+              <h4 class="contact-label">DISPONIBILITÉS</h4>
+              <p class="contact-value">
+                {% if artisan.profile.disponibilites %}
+                  {{ artisan.profile.disponibilites }}
+                {% else %}
+                  <span class="text-muted">Me contacter pour planifier</span>
+                {% endif %}
+              </p>
+            </div>
+          </div>
+          
+          <div class="mt-5">
+            <h4 class="contact-label mb-4">SUIVEZ MON TRAVAIL</h4>
+            <div class="social-links">
+              {% if artisan.profile.instagram %}
+              <a href="{{ artisan.profile.instagram }}" target="_blank" title="Voir mes réalisations sur Instagram">
+                <i class="fab fa-instagram"></i>
+              </a>
+              {% endif %}
+              {% if artisan.profile.pinterest %}
+              <a href="{{ artisan.profile.pinterest }}" target="_blank" title="Tableaux d'inspiration sur Pinterest">
+                <i class="fab fa-pinterest"></i>
+              </a>
+              {% endif %}
+              {% if artisan.profile.youtube %}
+              <a href="{{ artisan.profile.youtube }}" target="_blank" title="Vidéos de fabrication sur YouTube">
+                <i class="fab fa-youtube"></i>
+              </a>
+              {% endif %}
+              {% if artisan.profile.whatsapp %}
+              <a href="https://wa.me/{{ artisan.profile.whatsapp }}" target="_blank" title="Discutons sur WhatsApp">
+                <i class="fab fa-whatsapp"></i>
+              </a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- [Même footer et scripts que précédemment] -->
+
+  <script>
+    // Amélioration des placeholders
+    document.querySelectorAll('input, textarea').forEach(input => {
+      // Sauvegarde du placeholder original
+      const originalPlaceholder = input.placeholder;
+      
+      input.addEventListener('focus', function() {
+        this.placeholder = '';
+        if(this.type === 'textarea') {
+          this.style.height = '200px'; // Agrandit la zone de texte
+        }
+      });
+      
+      input.addEventListener('blur', function() {
+        if(this.value === '') {
+          this.placeholder = originalPlaceholder;
+          if(this.type === 'textarea') {
+            this.style.height = '150px'; // Taille par défaut
+          }
+        }
+      });
+      
+      // Validation en temps réel
+      input.addEventListener('input', function() {
+        if(this.value.length > 0) {
+          this.classList.add('has-value');
+          this.classList.remove('is-invalid');
+        } else {
+          this.classList.remove('has-value');
+        }
+      });
+    });
+    
+    // Validation du formulaire
+    document.querySelector('.contact-form').addEventListener('submit', function(e) {
+      let isValid = true;
+      
+      this.querySelectorAll('[required]').forEach(input => {
+        if(!input.value.trim()) {
+          input.classList.add('is-invalid');
+          isValid = false;
+        }
+      });
+      
+      if(!isValid) {
+        e.preventDefault();
+        alert('Veuillez remplir tous les champs obligatoires*');
+      }
+    });
+  </script>
+
+  <style>
+    /* Styles supplémentaires pour les placeholders */
+    ::placeholder {
+      color: #b0b0b0 !important;
+      opacity: 1;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+    }
+    
+    input:focus::placeholder,
+    textarea:focus::placeholder {
+      opacity: 0.5;
+    }
+    
+    .is-invalid {
+      border-bottom-color: #ff3860 !important;
+      animation: shake 0.5s;
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+    
+    .has-value {
+      border-bottom-color: var(--accent-color) !important;
+    }
+    
+    textarea {
+      transition: height 0.3s;
+    }
+    
+    .form-check-label {
+      font-size: 0.8rem;
+      opacity: 0.8;
+    }
+  </style>
+</body>
+</html>
+{% endblock %}

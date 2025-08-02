@@ -1,0 +1,1202 @@
+{% extends 'base_minimal.html' %}
+{% load static %}
+
+{% block title %}{{ artisan.get_full_name }} | {{ artisan.profile.metier }}{% endblock %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #34495e;
+      --accent-color: #e74c3c;
+      --light-color: #ecf0f1;
+      --text-color: #333;
+      --text-light: #7f8c8d;
+      --gold-color: #c0a062;
+    }
+    
+    body {
+      font-family: 'Raleway', sans-serif;
+      color: var(--text-color);
+      line-height: 1.8;
+      background-color: #f9f9f9;
+      overflow-x: hidden;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+    }
+    
+    /* Navigation */
+    .navbar {
+      background-color: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 2px 30px rgba(0, 0, 0, 0.08);
+      padding: 1.2rem 0;
+      transition: all 0.4s;
+    }
+    
+    .navbar.scrolled {
+      padding: 0.8rem 0;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .navbar-brand {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 1.8rem;
+      color: var(--primary-color) !important;
+      letter-spacing: 1px;
+    }
+    
+    .nav-link {
+      font-weight: 500;
+      color: var(--text-color) !important;
+      margin: 0 0.8rem;
+      position: relative;
+      padding: 0.5rem 0 !important;
+      letter-spacing: 0.5px;
+    }
+    
+    .nav-link:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--gold-color);
+      transition: width 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+    
+    .nav-link:hover:after,
+    .nav-link.active:after {
+      width: 100%;
+    }
+    
+    /* Hero Section */
+    .hero-section {
+      height: 100vh;
+      min-height: 800px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      background: linear-gradient(135deg, rgba(44, 62, 80, 0.9) 0%, rgba(52, 73, 94, 0.9) 100%);
+    }
+    
+    .hero-content {
+      position: relative;
+      z-index: 3;
+      color: white;
+    }
+    
+    .hero-title {
+      font-size: 4.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .hero-subtitle {
+      font-size: 1.5rem;
+      font-weight: 300;
+      margin-bottom: 3rem;
+      max-width: 700px;
+      opacity: 0.9;
+    }
+    
+    .hero-divider {
+      width: 100px;
+      height: 3px;
+      background-color: var(--gold-color);
+      margin: 2rem 0;
+    }
+    
+    .hero-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+      opacity: 0.15;
+    }
+    
+    /* Button Styles */
+    .btn-elegant {
+      background-color: transparent;
+      color: white;
+      border: 2px solid var(--gold-color);
+      padding: 0.8rem 2.5rem;
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      transition: all 0.4s;
+      border-radius: 0;
+    }
+    
+    .btn-elegant:hover {
+      background-color: var(--gold-color);
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(192, 160, 98, 0.3);
+    }
+    
+    /* Section Styles */
+    .section {
+      padding: 6rem 0;
+      position: relative;
+    }
+    
+    .section-title {
+      font-size: 2.5rem;
+      color: var(--primary-color);
+      margin-bottom: 3rem;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .section-title:after {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background-color: var(--gold-color);
+    }
+    
+    .section-subtitle {
+      font-size: 1.2rem;
+      color: var(--text-light);
+      margin-bottom: 4rem;
+      max-width: 700px;
+    }
+    
+    /* About Section */
+    .profile-card {
+      background-color: white;
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.08);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.5s;
+    }
+    
+    .profile-img-container {
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .profile-img {
+      width: 100%;
+      height: 500px;
+      object-fit: cover;
+      transition: transform 1s;
+    }
+    
+    .profile-card:hover .profile-img {
+      transform: scale(1.05);
+    }
+    
+    .profile-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(44, 62, 80, 0.8), transparent);
+      padding: 2rem;
+      color: white;
+    }
+    
+    .profile-name {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .profile-title {
+      font-family: 'Raleway', sans-serif;
+      font-weight: 400;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      color: var(--gold-color);
+    }
+    
+    .profile-details {
+      padding: 3rem;
+    }
+    
+    .detail-item {
+      margin-bottom: 1.5rem;
+    }
+    
+    .detail-icon {
+      color: var(--gold-color);
+      font-size: 1.2rem;
+      margin-right: 1rem;
+      width: 30px;
+      text-align: center;
+    }
+    
+    .detail-label {
+      font-weight: 600;
+      color: var(--primary-color);
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+    
+    .detail-value {
+      color: var(--text-light);
+    }
+    
+    /* Skills */
+    .skill-item {
+      margin-bottom: 2rem;
+    }
+    
+    .skill-name {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--primary-color);
+    }
+    
+    .skill-bar {
+      height: 6px;
+      background-color: #e0e0e0;
+      position: relative;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    
+    .skill-progress {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background-color: var(--gold-color);
+      width: 0;
+      transition: width 1.5s ease-in-out;
+    }
+    
+    /* Portfolio */
+    .portfolio-filter {
+      margin-bottom: 3rem;
+    }
+    
+    .filter-btn {
+      background: none;
+      border: none;
+      font-weight: 500;
+      color: var(--text-light);
+      margin: 0 1rem;
+      padding: 0.3rem 0;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .filter-btn:after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--gold-color);
+      transition: width 0.3s;
+    }
+    
+    .filter-btn.active,
+    .filter-btn:hover {
+      color: var(--primary-color);
+    }
+    
+    .filter-btn.active:after,
+    .filter-btn:hover:after {
+      width: 100%;
+    }
+    
+    .portfolio-item {
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      transition: all 0.5s;
+    }
+    
+    .portfolio-img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      transition: transform 0.8s;
+    }
+    
+    .portfolio-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(44, 62, 80, 0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 0.5s;
+      padding: 2rem;
+      text-align: center;
+      color: white;
+    }
+    
+    .portfolio-item:hover .portfolio-overlay {
+      opacity: 1;
+    }
+    
+    .portfolio-item:hover .portfolio-img {
+      transform: scale(1.1);
+    }
+    
+    .portfolio-category {
+      color: var(--gold-color);
+      font-weight: 500;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    
+    .portfolio-title {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    /* Testimonials */
+    .testimonial-section {
+      background: linear-gradient(135deg, rgba(44, 62, 80, 0.95) 0%, rgba(52, 73, 94, 0.95) 100%);
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .testimonial-section:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: url('{% static "static/icons/texture.png" %}') repeat;
+      opacity: 0.05;
+      pointer-events: none;
+    }
+    
+    .testimonial-section .section-title {
+      color: white;
+    }
+    
+    .testimonial-section .section-title:after {
+      background-color: var(--gold-color);
+    }
+    
+    .testimonial-card {
+      background-color: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 5px;
+      padding: 2.5rem;
+      margin: 1rem;
+      transition: all 0.5s;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .testimonial-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .testimonial-text {
+      font-style: italic;
+      margin-bottom: 2rem;
+      position: relative;
+    }
+    
+    .testimonial-text:before {
+      content: '"';
+      font-size: 5rem;
+      position: absolute;
+      top: -30px;
+      left: -20px;
+      color: rgba(255, 255, 255, 0.1);
+      font-family: serif;
+      line-height: 1;
+    }
+    
+    .client-info {
+      display: flex;
+      align-items: center;
+    }
+    
+    .client-img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 1.5rem;
+      border: 2px solid var(--gold-color);
+    }
+    
+    .client-name {
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+    
+    .client-position {
+      color: var(--gold-color);
+      font-size: 0.9rem;
+    }
+    
+    .rating {
+      color: var(--gold-color);
+      margin-bottom: 1rem;
+    }
+    
+    /* Contact Section */
+    .contact-form .form-control {
+      border-radius: 0;
+      border: none;
+      border-bottom: 1px solid #ddd;
+      padding: 1rem 0;
+      margin-bottom: 2rem;
+      background-color: transparent;
+      font-weight: 500;
+    }
+    
+    .contact-form .form-control:focus {
+      box-shadow: none;
+      border-bottom-color: var(--gold-color);
+    }
+    
+    .contact-info-item {
+      display: flex;
+      margin-bottom: 2rem;
+    }
+    
+    .contact-icon {
+      width: 60px;
+      height: 60px;
+      background-color: rgba(192, 160, 98, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1.5rem;
+      color: var(--gold-color);
+      font-size: 1.5rem;
+    }
+    
+    .contact-label {
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+    }
+    
+    .contact-value {
+      color: var(--text-light);
+    }
+    
+    /* Footer */
+    .footer {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 5rem 0 2rem;
+      position: relative;
+    }
+    
+    .footer:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(to right, transparent, var(--gold-color), transparent);
+    }
+    
+    .footer-title {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      display: inline-block;
+    }
+    
+    .footer-title:after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 40px;
+      height: 2px;
+      background-color: var(--gold-color);
+    }
+    
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.7);
+      display: block;
+      margin-bottom: 0.8rem;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+    
+    .footer-links a:hover {
+      color: white;
+      transform: translateX(5px);
+    }
+    
+    .social-links a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: white;
+      border-radius: 50%;
+      margin-right: 1rem;
+      transition: all 0.3s;
+    }
+    
+    .social-links a:hover {
+      background-color: var(--gold-color);
+      transform: translateY(-5px);
+    }
+    
+    .copyright {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 2rem;
+      margin-top: 3rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+    
+    /* Floating Button */
+    .floating-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      background-color: var(--gold-color);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      box-shadow: 0 5px 25px rgba(192, 160, 98, 0.4);
+      z-index: 100;
+      transition: all 0.4s;
+    }
+    
+    .floating-btn:hover {
+      transform: scale(1.1) rotate(10deg);
+      background-color: var(--accent-color);
+    }
+    
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .animate {
+      animation: fadeInUp 1s both;
+    }
+    
+    /* Responsive */
+    @media (max-width: 992px) {
+      .hero-title {
+        font-size: 3.5rem;
+      }
+      
+      .profile-img {
+        height: 400px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .hero-title {
+        font-size: 2.8rem;
+      }
+      
+      .hero-subtitle {
+        font-size: 1.2rem;
+      }
+      
+      .section {
+        padding: 4rem 0;
+      }
+      
+      .profile-img {
+        height: 350px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+    <div class="container">
+      <a class="navbar-brand" href="#">
+        {{ artisan.get_full_name|slice:":1" }}<span style="color: var(--gold-color);">{{ artisan.get_full_name|slice:"1:2" }}</span>{{ artisan.get_full_name|slice:"2:" }}
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="#home">Accueil</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#about">À propos</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#portfolio">Portfolio</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#testimonials">Témoignages</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#contact">Contact</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="home" class="hero-section">
+    {% if artisan.profile.banner_image %}
+      <img src="{{ artisan.profile.banner_image.url }}" class="hero-image" alt="{{ artisan.get_full_name }}">
+    {% else %}
+      <div class="hero-image" style="background-color: var(--secondary-color);"></div>
+    {% endif %}
+    
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-7">
+          <div class="hero-content animate" style="animation-delay: 0.2s;">
+            <h1 class="hero-title">{{ artisan.get_full_name }}</h1>
+            <div class="hero-divider"></div>
+            <p class="hero-subtitle">{{ artisan.profile.metier|default:"Maître Artisan" }} avec {{ artisan.profile.experience_years|default:"15" }} ans d'expérience</p>
+            <a href="#contact" class="btn btn-elegant">Contactez-moi</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section id="about" class="section bg-white">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 text-center mb-5">
+          <h2 class="section-title">Mon Expertise</h2>
+          <p class="section-subtitle">Un savoir-faire artisanal alliant tradition et innovation</p>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-lg-6 mb-5 mb-lg-0">
+          <div class="profile-card">
+            <div class="profile-img-container">
+              {% if artisan.profile.photo %}
+                <img src="{{ artisan.profile.photo.url }}" class="profile-img" alt="{{ artisan.get_full_name }}">
+              {% else %}
+                <div class="profile-img d-flex align-items-center justify-content-center bg-light">
+                  <i class="fas fa-user-tie fa-5x text-muted"></i>
+                </div>
+              {% endif %}
+              <div class="profile-overlay">
+                <h3 class="profile-name">{{ artisan.get_full_name }}</h3>
+                <p class="profile-title">{{ artisan.profile.metier|default:"Maître Artisan" }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-6">
+          <div class="profile-details">
+            <h3 class="mb-4">À propos de moi</h3>
+            
+            {% if artisan.profile.description %}
+              <p class="mb-5">{{ artisan.profile.description|linebreaks }}</p>
+            {% else %}
+              <p class="mb-5">Artisan passionné avec une approche contemporaine du métier, alliant techniques traditionnelles et innovations modernes pour des réalisations d'exception.</p>
+            {% endif %}
+            
+            <div class="detail-item">
+              <div class="d-flex align-items-center">
+                <div class="detail-icon">
+                  <i class="fas fa-medal"></i>
+                </div>
+                <div>
+                  <span class="detail-label">Expérience</span>
+                  <span class="detail-value">{{ artisan.profile.experience_years|default:"15" }} ans d'expertise</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="d-flex align-items-center">
+                <div class="detail-icon">
+                  <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div>
+                  <span class="detail-label">Localisation</span>
+                  <span class="detail-value">{{ artisan.profile.ville|default:"Non renseigné" }}, {{ artisan.profile.pays|default:"" }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="d-flex align-items-center">
+                <div class="detail-icon">
+                  <i class="fas fa-phone"></i>
+                </div>
+                <div>
+                  <span class="detail-label">Téléphone</span>
+                  <span class="detail-value">{{ artisan.profile.telephone|default:"Non renseigné" }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="detail-item">
+              <div class="d-flex align-items-center">
+                <div class="detail-icon">
+                  <i class="fas fa-envelope"></i>
+                </div>
+                <div>
+                  <span class="detail-label">Email</span>
+                  <span class="detail-value">{{ artisan.email }}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="mt-5">
+              <h4 class="mb-4">Mes compétences</h4>
+              
+              <div class="skill-item">
+                <div class="skill-name">Précision artisanale</div>
+                <div class="skill-bar">
+                  <div class="skill-progress" style="width: 95%"></div>
+                </div>
+              </div>
+              
+              <div class="skill-item">
+                <div class="skill-name">Conception sur mesure</div>
+                <div class="skill-bar">
+                  <div class="skill-progress" style="width: 90%"></div>
+                </div>
+              </div>
+              
+              <div class="skill-item">
+                <div class="skill-name">Sélection des matériaux</div>
+                <div class="skill-bar">
+                  <div class="skill-progress" style="width: 85%"></div>
+                </div>
+              </div>
+              
+              <div class="skill-item">
+                <div class="skill-name">Finitions exceptionnelles</div>
+                <div class="skill-bar">
+                  <div class="skill-progress" style="width: 98%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Portfolio Section -->
+  <section id="portfolio" class="section bg-light">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 text-center mb-5">
+          <h2 class="section-title">Mon Portfolio</h2>
+          <p class="section-subtitle">Une sélection de mes réalisations les plus remarquables</p>
+        </div>
+      </div>
+      
+      <div class="row justify-content-center">
+        <div class="col-12">
+          <div class="portfolio-filter text-center mb-5">
+            <button class="filter-btn active" data-filter="*">Tous</button>
+            {% if categories %}
+              {% for category in categories %}
+                <button class="filter-btn" data-filter=".{{ category.name|slugify }}">{{ category.name }}</button>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+      <div class="row portfolio-grid">
+        {% if categories %}
+          {% for category in categories %}
+            <div class="col-lg-4 col-md-6 mb-4 portfolio-item {{ category.name|slugify }}">
+              <a href="{% url 'products_by_category' username=artisan.username category_id=category.id %}">
+                {% if category.preview_image %}
+                  <img src="{{ category.preview_image.url }}" class="portfolio-img" alt="{{ category.name }}">
+                {% else %}
+                  <div class="portfolio-img d-flex align-items-center justify-content-center bg-light">
+                    <i class="fas fa-image fa-3x text-muted"></i>
+                  </div>
+                {% endif %}
+                <div class="portfolio-overlay">
+                  <span class="portfolio-category">{{ category.name }}</span>
+                  <h4 class="portfolio-title">Voir les réalisations</h4>
+                  <i class="fas fa-arrow-right"></i>
+                </div>
+              </a>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="col-12 text-center py-5">
+            <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+            <h3>Portfolio en construction</h3>
+            <p class="text-muted">Mes dernières réalisations seront bientôt disponibles</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section id="testimonials" class="testimonial-section section">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 text-center mb-5">
+          <h2 class="section-title">Témoignages Clients</h2>
+          <p class="section-subtitle" style="color: rgba(255,255,255,0.7);">Ce que disent mes clients à propos de mon travail</p>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-4 mb-4">
+          <div class="testimonial-card">
+            <div class="rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">Un travail absolument remarquable ! {{ artisan.first_name }} a su comprendre exactement ce que je voulais et a livré un résultat bien au-delà de mes attentes.</p>
+            <div class="client-info">
+              <img src="https://randomuser.me/api/portraits/women/43.jpg" class="client-img" alt="Marie D.">
+              <div>
+                <h5 class="client-name">Marie D.</h5>
+                <p class="client-position">Client particulier</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+          <div class="testimonial-card">
+            <div class="rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p class="testimonial-text">Professionalisme et créativité au rendez-vous. Les meubles réalisés pour notre salon sont d'une qualité exceptionnelle. Je recommande sans hésitation !</p>
+            <div class="client-info">
+              <img src="https://randomuser.me/api/portraits/men/32.jpg" class="client-img" alt="Pierre L.">
+              <div>
+                <h5 class="client-name">Pierre L.</h5>
+                <p class="client-position">Architecte d'intérieur</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-4 mb-4">
+          <div class="testimonial-card">
+            <div class="rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star-half-alt"></i>
+            </div>
+            <p class="testimonial-text">Un artisan passionné qui prend le temps d'écouter et de conseiller. Le résultat final est magnifique et s'intègre parfaitement dans notre intérieur.</p>
+            <div class="client-info">
+              <img src="https://randomuser.me/api/portraits/women/65.jpg" class="client-img" alt="Sophie T.">
+              <div>
+                <h5 class="client-name">Sophie T.</h5>
+                <p class="client-position">Designer</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="section bg-white">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 text-center mb-5">
+          <h2 class="section-title">Contactez-moi</h2>
+          <p class="section-subtitle">Pour toute demande de devis ou information complémentaire</p>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-lg-7 mb-5 mb-lg-0">
+          <form class="contact-form" method="post" action="{% url 'contact_artisan' artisan.username %}">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-md-6">
+                <input type="text" class="form-control" name="name" placeholder="Votre nom" required>
+              </div>
+              <div class="col-md-6">
+                <input type="email" class="form-control" name="email" placeholder="Votre email" required>
+              </div>
+            </div>
+            <input type="text" class="form-control" name="subject" placeholder="Sujet">
+            <textarea class="form-control" rows="5" name="message" placeholder="Votre message" required></textarea>
+            <button type="submit" class="btn btn-elegant" style="border-color: var(--primary-color); color: var(--primary-color);">Envoyer le message</button>
+          </form>
+        </div>
+        
+        <div class="col-lg-5">
+          <div class="contact-info-item">
+            <div class="contact-icon">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div>
+              <h4 class="contact-label">Adresse</h4>
+              <p class="contact-value">{{ artisan.profile.adresse|default:"Non renseigné" }}<br>{{ artisan.profile.ville|default:"" }}, {{ artisan.profile.pays|default:"" }}</p>
+            </div>
+          </div>
+          
+          <div class="contact-info-item">
+            <div class="contact-icon">
+              <i class="fas fa-phone"></i>
+            </div>
+            <div>
+              <h4 class="contact-label">Téléphone</h4>
+              <p class="contact-value">{{ artisan.profile.telephone|default:"Non renseigné" }}</p>
+            </div>
+          </div>
+          
+          <div class="contact-info-item">
+            <div class="contact-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <div>
+              <h4 class="contact-label">Email</h4>
+              <p class="contact-value">{{ artisan.email }}</p>
+            </div>
+          </div>
+          
+          <div class="contact-info-item">
+            <div class="contact-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div>
+              <h4 class="contact-label">Horaires</h4>
+              <p class="contact-value">Lundi - Vendredi: 8h - 18h<br>Samedi: 9h - 12h</p>
+            </div>
+          </div>
+          
+          <div class="mt-4">
+            <h4 class="contact-label mb-3">Réseaux sociaux</h4>
+            <div class="social-links">
+              {% if artisan.profile.facebook %}
+              <a href="{{ artisan.profile.facebook }}" target="_blank"><i class="fab fa-facebook-f"></i></a>
+              {% endif %}
+              {% if artisan.profile.instagram %}
+              <a href="{{ artisan.profile.instagram }}" target="_blank"><i class="fab fa-instagram"></i></a>
+              {% endif %}
+              {% if artisan.profile.whatsapp %}
+              <a href="https://wa.me/{{ artisan.profile.whatsapp }}" target="_blank"><i class="fab fa-whatsapp"></i></a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-4 mb-5 mb-lg-0">
+          <h3 class="footer-title">{{ artisan.get_full_name }}</h3>
+          <p class="mt-4">{{ artisan.profile.metier|default:"Maître Artisan" }} avec {{ artisan.profile.experience_years|default:"15" }} ans d'expérience dans la création de pièces uniques et sur mesure.</p>
+        </div>
+        
+        <div class="col-lg-2 col-md-6 mb-5 mb-md-0">
+          <h3 class="footer-title">Navigation</h3>
+          <div class="footer-links mt-4">
+            <a href="#home">Accueil</a>
+            <a href="#about">À propos</a>
+            <a href="#portfolio">Portfolio</a>
+            <a href="#testimonials">Témoignages</a>
+            <a href="#contact">Contact</a>
+          </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6 mb-5 mb-md-0">
+          <h3 class="footer-title">Contact</h3>
+          <div class="footer-links mt-4">
+            <a href="tel:{{ artisan.profile.telephone|default:'#' }}"><i class="fas fa-phone me-2"></i> {{ artisan.profile.telephone|default:"Non renseigné" }}</a>
+            <a href="mailto:{{ artisan.email }}"><i class="fas fa-envelope me-2"></i> {{ artisan.email }}</a>
+            <a><i class="fas fa-map-marker-alt me-2"></i> {{ artisan.profile.ville|default:"Non renseigné" }}</a>
+          </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+          <h3 class="footer-title">Réseaux sociaux</h3>
+          <div class="social-links mt-4">
+            {% if artisan.profile.facebook %}
+            <a href="{{ artisan.profile.facebook }}" target="_blank"><i class="fab fa-facebook-f"></i></a>
+            {% endif %}
+            {% if artisan.profile.instagram %}
+            <a href="{{ artisan.profile.instagram }}" target="_blank"><i class="fab fa-instagram"></i></a>
+            {% endif %}
+            {% if artisan.profile.whatsapp %}
+            <a href="https://wa.me/{{ artisan.profile.whatsapp }}" target="_blank"><i class="fab fa-whatsapp"></i></a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-12">
+          <div class="copyright text-center">
+            <p>&copy; {% now "Y" %} {{ artisan.get_full_name }}. Tous droits réservés.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating Button -->
+  {% if artisan.profile.whatsapp %}
+  <a href="https://wa.me/{{ artisan.profile.whatsapp }}" class="floating-btn" target="_blank">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+  {% endif %}
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', function() {
+      const navbar = document.querySelector('.navbar');
+      if (window.scrollY > 100) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    });
+    
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+          behavior: 'smooth'
+        });
+      });
+    });
+    
+    // Form submission
+    document.querySelector('.contact-form')?.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = this;
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+          'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+          'Accept': 'application/json',
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Merci pour votre message! Je vous contacterai bientôt.');
+          form.reset();
+        } else {
+          alert('Une erreur est survenue: ' + (data.error || 'Veuillez réessayer.'));
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Une erreur réseau est survenue. Veuillez réessayer.');
+      });
+    });
+    
+    // Animate skills on scroll
+    function animateSkills() {
+      const skills = document.querySelectorAll('.skill-progress');
+      skills.forEach(skill => {
+        const width = skill.style.width;
+        skill.style.width = '0';
+        setTimeout(() => {
+          skill.style.width = width;
+        }, 200);
+      });
+    }
+    
+    // Intersection Observer for animations
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate');
+          if (entry.target.classList.contains('skill-bar')) {
+            animateSkills();
+          }
+        }
+      });
+    }, { threshold: 0.1 });
+    
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
+      observer.observe(el);
+    });
+  </script>
+</body>
+</html>
+{% endblock %}

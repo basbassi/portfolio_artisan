@@ -98,3 +98,15 @@ class ContactForm(forms.Form):
             'rows': 5
         })
     )
+# forms.py
+# forms.py
+from django import forms
+from .models import Profile  # Cette ligne est cruciale
+
+class TemplateForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['template']
+        widgets = {
+            'template': forms.RadioSelect(attrs={'class': 'template-radio'}),
+        }

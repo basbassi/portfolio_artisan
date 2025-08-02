@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="template-selection-container">
+    <div class="template-header">
+        <h1><i class="fas fa-palette"></i> Personnalisez votre portfolio</h1>
+        <p class="subtitle">Sélectionnez le design qui correspond à votre style</p>
+    </div>
+
+    <form method="post" class="template-form">
+        {% csrf_token %}
+        
+        <div class="template-grid">
+            {% for value, label in form.template.field.choices %}
+            <div class="template-card">
+                <input type="radio" 
+                       id="template_{{ value }}" 
+                       name="template" 
+                       value="{{ value }}"
+                       class="template-radio"
+                       {% if form.template.value == value %}checked{% endif %}>
+                <label for="template_{{ value }}" class="template-option">
+                    <div class="template-preview">
+                        <img src="{% static 'img/template_previews/'|add:value|add:'.jpg' %}" 
+                             alt="Aperçu {{ label }}"
+                             class="template-image"
+                             onerror="this.onerror=null; this.src='{% static 'img/default_template.jpg' %}'">
+                        <div class="template-overlay">
+                            <span class="preview-text">Voir un aperçu</span>
+                        </div>
+                    </div>
+                    <div class="template-info">
+                        <h3>{{ label }}</h3>
+                        <div class="template-features">
+                            {% if value == 'classic' %}
+                            <span><i class="fas fa-check"></i> Style classique</span>
+                            <span><i class="fas fa-check"></i> Palette boisée</span>
+                            {% elif value == 'modern' %}
+                            <span><i class="fas fa-check"></i> Design épuré</span>
+                            <span><i class="fas fa-check"></i> Animations fluides</span>
+                            {% elif value == 'minimal' %}
+                            <span><i class="fas fa-check"></i> Minimalisme</span>
+                            <span><i class="fas fa-check"></i> Focus sur le contenu</span>
+                            {% elif value == 'elegant' %}
+                            <span><i class="fas fa-check"></i> Élégance sobre</span>
+                            <span><i class="fas fa-check"></i> Typographie raffinée</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </label>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="save-button">
+                <i class="fas fa-save"></i> Appliquer ce template
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --secondary-color: #3a0ca3;
+        --accent-color: #4cc9f0;
+        --light-gray: #f8f9fa;
+        --dark-gray: #343a40;
+        --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .template-selection-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .template-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .template-header h1 {
+        color: var(--dark-gray);
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .template-header .subtitle {
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+
+    .template-form {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .template-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .template-card {
+        position: relative;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: var(--transition);
+    }
+
+    .template-radio {
+        position: absolute;
+        opacity: 0;
+    }
+
+    .template-option {
+        display: block;
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: var(--transition);
+        cursor: pointer;
+    }
+
+    .template-option:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        border-color: var(--primary-color);
+    }
+
+    .template-radio:checked + .template-option {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+    }
+
+    .template-radio:checked + .template-option .template-overlay {
+        opacity: 1;
+        background: rgba(67, 97, 238, 0.7);
+    }
+
+    .template-preview {
+        position: relative;
+        height: 200px;
+        background: var(--light-gray);
+    }
+
+    .template-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .template-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: var(--transition);
+    }
+
+    .preview-text {
+        color: white;
+        font-weight: 600;
+        padding: 0.5rem 1rem;
+        background: var(--primary-color);
+        border-radius: 20px;
+    }
+
+    .template-info {
+        padding: 1.5rem;
+        background: white;
+    }
+
+    .template-info h3 {
+        margin-top: 0;
+        margin-bottom: 1rem;
+        color: var(--dark-gray);
+    }
+
+    .template-features {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .template-features span {
+        display: flex;
+        align-items: center;
+        color: #495057;
+        font-size: 0.9rem;
+    }
+
+    .template-features i {
+        margin-right: 0.5rem;
+        color: var(--primary-color);
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: center;
+    }
+
+    .save-button {
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 0.8rem 2rem;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .save-button:hover {
+        background: var(--secondary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+    }
+
+    @media (max-width: 768px) {
+        .template-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .template-header {
+            margin-bottom: 2rem;
+        }
+        
+        .template-header h1 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation au clic
+    const templateOptions = document.querySelectorAll('.template-option');
+    
+    templateOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            // Retire la sélection précédente
+            document.querySelectorAll('.template-radio:checked').forEach(el => {
+                el.checked = false;
+            });
+            
+            // Active la nouvelle sélection
+            this.previousElementSibling.checked = true;
+            
+            // Met à jour les styles
+            templateOptions.forEach(opt => {
+                opt.style.borderColor = '#e9ecef';
+            });
+            this.style.borderColor = '#4361ee';
+        });
+    });
+});
+</script>
+{% endblock %}
