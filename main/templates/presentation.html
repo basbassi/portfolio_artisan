@@ -1,454 +1,701 @@
-{% extends 'base.html' %}
+{% extends 'base_minimal.html' %}
+{% load static %}
 
-{% block title %}Portfolio de {{ artisan.first_name }} {{ artisan.last_name }} | Artisan Professionnel{% endblock %}
-
+{% block title %}{{ artisan.get_full_name }} - {{ artisan.profile.metier }}{% endblock %}
 
 {% block content %}
-<div class="artisan-profile">
-    <!-- Hero Section -->
-    <div class="profile-hero">
-        <div class="hero-overlay"></div>
-        <div class="hero-content text-center py-5 position-relative">
-            <div class="profile-avatar mb-4">
-                {% if artisan.profile.photo and artisan.profile.photo.name %}
-                <img src="{{ artisan.profile.photo.url }}" class="profile-photo rounded-circle shadow-lg" alt="Photo de {{ artisan.username }}">
-                {% else %}
-                <div class="avatar-placeholder rounded-circle shadow-lg">
-                    <i class="fas fa-user-cog"></i>
-                </div>
-                {% endif %}
-            </div>
-            <h1 class="display-4 mb-3 text-white">{{ artisan.first_name }} {{ artisan.last_name }}</h1>
-
-            <div class="profile-badge">
-                <span class="badge bg-primary">{{ artisan.profile.metier|default:"Artisan Professionnel" }}</span>
-            </div>
-            <div class="profile-social mt-4">
-                {% if artisan.profile.website %}
-                <a href="{{ artisan.profile.website }}" target="_blank" class="social-link"><i class="fas fa-globe"></i></a>
-                {% endif %}
-                {% if artisan.profile.facebook %}
-                <a href="{{ artisan.profile.facebook }}" target="_blank" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                {% endif %}
-                {% if artisan.profile.instagram %}
-                <a href="{{ artisan.profile.instagram }}" target="_blank" class="social-link"><i class="fab fa-instagram"></i></a>
-                {% endif %}
-                {% if artisan.profile.linkedin %}
-                <a href="{{ artisan.profile.linkedin }}" target="_blank" class="social-link"><i class="fab fa-linkedin-in"></i></a>
-                {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="container py-5">
-        <!-- About Section -->
-        <div class="row mb-5">
-            <div class="col-lg-8 mx-auto text-center">
-                <h2 class="section-title mb-4">À propos de moi</h2>
-                {% if artisan.profile.description %}
-                <p class="lead text-muted">{{ artisan.profile.description }}</p>
-                {% else %}
-                <p class="text-muted">Artisan passionné avec plusieurs années d'expérience dans mon domaine.</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Contact & Info Section -->
-        <div class="row mb-5">
-            <div class="col-md-6 mb-4 mb-md-0">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body p-4">
-                        <h3 class="h4 card-title mb-4"><i class="fas fa-id-card me-2 text-primary"></i>Coordonnées</h3>
-                        <div class="contact-info">
-                            {% if artisan.profile.telephone %}
-                            <div class="contact-item mb-3">
-                                <i class="fas fa-phone fa-fw text-primary"></i>
-                                <a href="tel:{{ artisan.profile.telephone }}" class="contact-link">{{ artisan.profile.telephone }}</a>
-                            </div>
-                            {% endif %}
-                            
-                            {% if artisan.email %}
-                            <div class="contact-item mb-3">
-                                <i class="fas fa-envelope fa-fw text-primary"></i>
-                                <a href="mailto:{{ artisan.email }}" class="contact-link">{{ artisan.email }}</a>
-                            </div>
-                            {% endif %}
-                            
-                            {% if artisan.profile.adresse %}
-                            <div class="contact-item">
-                                <i class="fas fa-map-marker-alt fa-fw text-primary"></i>
-                                <span class="contact-text">{{ artisan.profile.adresse }}</span>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-6">
-                <div class="card shadow-sm h-100">
-                    <div class="card-body p-4">
-                        <h3 class="h4 card-title mb-4"><i class="fas fa-award me-2 text-primary"></i>Compétences</h3>
-                        <div class="skills-list">
-                            {% if artisan.profile.competences %}
-                                {% for competence in artisan.profile.competences_as_list %}
-                                <span class="skill-badge">{{ competence }}</span>
-                                {% endfor %}
-                            {% else %}
-                            <p class="text-muted mb-0">Compétences non spécifiées</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Categories Section -->
-        <div class="categories-section mb-5">
-            <div class="section-header d-flex justify-content-between align-items-center mb-4">
-                <h2 class="section-title mb-0">Mes Spécialités</h2>
-                {% if categories|length > 3 %}
-                <a href="#" class="btn btn-outline-primary btn-sm">Voir tout</a>
-                {% endif %}
-            </div>
-            
-            {% if categories %}
-            <div class="categories-grid">
-                {% for category in categories %}
-                <div class="category-card">
-                    <div class="category-icon">
-                        <i class="fas fa-{{ category.icon|default:'tools' }}"></i>
-                    </div>
-                    <h3 class="category-title">{{ category.name }}</h3>
-                    <p class="category-description text-muted small">{{ category.description|default:"Spécialité d'excellence" }}</p>
-                    <a href="/{{ artisan.username }}/category/{{ category.id }}/" class="btn btn-outline-primary btn-sm">
-                        Voir les réalisations <i class="fas fa-arrow-right ms-1"></i>
-                    </a>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="empty-state text-center py-5">
-                <i class="fas fa-box-open fa-3x mb-3 text-muted"></i>
-                <p class="text-muted">Aucune catégorie disponible pour le moment</p>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- Testimonials Section -->
-        <div class="testimonials-section mb-5">
-            <h2 class="section-title mb-4">Témoignages</h2>
-            <div class="testimonials-slider">
-                <!-- Placeholder for testimonials -->
-                <div class="testimonial-card">
-                    <div class="testimonial-content">
-                        <p class="testimonial-text">"Travail exceptionnel et professionnel. Je recommande vivement ce artisan pour la qualité de ses réalisations."</p>
-                    </div>
-                    <div class="testimonial-author">
-                        <div class="author-avatar">
-                            <i class="fas fa-user"></i>
-                        </div>
-                        <div class="author-info">
-                            <h5 class="author-name mb-0">Jean Dupont</h5>
-                            <p class="author-position small text-muted mb-0">Client satisfait</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome pour les icônes -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <style>
     :root {
-        --primary-color: #4e66f8;
-        --primary-dark: #3a4fc8;
-        --primary-light: #eef1ff;
-        --secondary-color: #6c757d;
-        --dark-color: #2d3748;
-        --light-color: #f8f9fa;
-        --border-radius: 12px;
-        --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        --transition: all 0.3s ease;
-        --gradient: linear-gradient(135deg, var(--primary-color) 0%, #6a11cb 100%);
+      --primary-color: #8B5A2B; /* Couleur bois clair */
+      --secondary-color: #5D4037; /* Couleur bois foncé */
+      --light-color: #F5F5F5;
     }
-
+    
     body {
-        font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-        color: #4a5568;
-        line-height: 1.6;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--light-color);
     }
-
-    .artisan-profile {
-        background-color: #f8fafc;
+    
+    .navbar-custom {
+      background-color: rgba(91, 64, 55, 0.9);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
-
-    .profile-hero {
-        position: relative;
-        background: var(--gradient);
-        padding: 4rem 0;
-        margin-bottom: 3rem;
-        overflow: hidden;
+    
+    .navbar-custom .nav-link {
+      color: white;
+      font-weight: 500;
+      padding: 0.5rem 1rem;
+      margin: 0 0.2rem;
+      transition: all 0.3s;
     }
-
-    .hero-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: url('https://images.unsplash.com/photo-1605106702734-205df224ecce?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') center/cover;
-        opacity: 0.1;
+    
+    .navbar-custom .nav-link:hover {
+      color: var(--light-color);
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
     }
-
-    .hero-content {
-        position: relative;
-        z-index: 2;
+    
+    .hero-image {
+      height: 60vh;
+      min-height: 400px;
+      object-fit: cover;
+      width: 100%;
     }
-
-    .profile-photo {
-        width: 150px;
-        height: 150px;
-        object-fit: cover;
-        border: 5px solid rgba(255, 255, 255, 0.2);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    
+    .logo-artisan {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 5px solid white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      margin-top: -75px;
+      background-color: white;
     }
-
-    .avatar-placeholder {
-        width: 150px;
-        height: 150px;
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 3rem;
-        margin: 0 auto;
+    
+    .artisan-info {
+      background-color: white;
+      border-radius: 10px;
+      padding: 2rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
     }
-
-    .profile-badge .badge {
-        font-size: 1rem;
-        padding: 0.5rem 1.25rem;
-        border-radius: 50px;
-        font-weight: 500;
-        letter-spacing: 0.5px;
-        background-color: rgba(255, 255, 255, 0.2);
-        backdrop-filter: blur(5px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
+    
+    /* Style pour la galerie horizontale */
+    .horizontal-gallery {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      gap: 20px;
+      padding: 20px 0;
+      -webkit-overflow-scrolling: touch;
     }
-
-    .profile-social {
-        display: flex;
-        justify-content: center;
-        gap: 1rem;
+    
+    .horizontal-gallery::-webkit-scrollbar {
+      height: 8px;
     }
-
-    .social-link {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        background-color: rgba(255, 255, 255, 0.2);
-        color: white;
-        transition: var(--transition);
+    
+    .horizontal-gallery::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
     }
-
-    .social-link:hover {
-        background-color: white;
-        color: var(--primary-color);
-        transform: translateY(-3px);
+    
+    .horizontal-gallery::-webkit-scrollbar-thumb {
+      background: var(--primary-color);
+      border-radius: 10px;
     }
-
+    
+    .gallery-item {
+      scroll-snap-align: start;
+      flex: 0 0 auto;
+      width: 300px;
+      text-align: center;
+    }
+    
+    .gallery-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 8px;
+      transition: transform 0.3s;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .gallery-img:hover {
+      transform: scale(1.05);
+    }
+    
     .section-title {
-        position: relative;
-        display: inline-block;
-        color: var(--dark-color);
-        font-weight: 600;
+      color: var(--secondary-color);
+      position: relative;
+      margin-bottom: 2rem;
+      font-weight: 700;
     }
-
+    
     .section-title:after {
-        content: '';
-        position: absolute;
-        left: 0;
-        bottom: -8px;
-        width: 40px;
-        height: 4px;
-        background: var(--gradient);
-        border-radius: 2px;
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background-color: var(--primary-color);
+    }
+    
+    .contact-info i {
+      color: var(--primary-color);
+      margin-right: 10px;
+      width: 20px;
+    }
+    
+    footer {
+      background-color: var(--secondary-color);
+      color: white;
+      padding: 2rem 0;
+      margin-top: 3rem;
+    }
+    
+    .contact-section {
+      background-color: white;
+      border-radius: 10px;
+      padding: 3rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      margin: 3rem auto;
+    }
+    
+    .contact-form .form-control {
+      border-radius: 5px;
+      border: 1px solid #ddd;
+      padding: 12px 15px;
+      margin-bottom: 1.5rem;
+    }
+    
+    .contact-form .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.25rem rgba(139, 90, 43, 0.25);
+    }
+    
+    .btn-primary-custom {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+      padding: 10px 25px;
+      font-weight: 600;
+    }
+    
+    .btn-primary-custom:hover {
+      background-color: var(--secondary-color);
+      border-color: var(--secondary-color);
+    }
+    
+    .contact-method {
+      text-align: center;
+      padding: 2rem;
+      border-radius: 8px;
+      transition: all 0.3s;
+      height: 100%;
+      background-color: var(--light-color);
+    }
+    
+    .contact-method:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .contact-method i {
+      font-size: 2.5rem;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+    
+    /* WhatsApp Float */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background: #25D366;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.8rem;
+      box-shadow: 0 4px 20px rgba(37, 211, 102, 0.3);
+      z-index: 100;
+      transition: all 0.3s;
+    }
+    
+    .whatsapp-float:hover {
+      transform: scale(1.1);
     }
 
-    .card {
-        border: none;
-        border-radius: var(--border-radius);
-        transition: var(--transition);
-    }
-
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-    }
-
-    .contact-info {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .contact-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 0.5rem 0;
-    }
-
-    .contact-link, .contact-text {
-        color: var(--dark-color);
-        text-decoration: none;
-        transition: var(--transition);
-    }
-
-    .contact-link:hover {
-        color: var(--primary-color);
-        text-decoration: underline;
-    }
-
-    .skills-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-
-    .skill-badge {
-        background-color: var(--primary-light);
-        color: var(--primary-dark);
-        padding: 0.35rem 0.75rem;
-        border-radius: 50px;
-        font-size: 0.85rem;
-        font-weight: 500;
-    }
-
-    .categories-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1.5rem;
-    }
-
-    .category-card {
-        background: white;
-        border-radius: var(--border-radius);
-        padding: 2rem;
-        text-align: center;
-        box-shadow: var(--box-shadow);
-        transition: var(--transition);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .category-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
-    }
-
-    .category-icon {
-        width: 80px;
-        height: 80px;
-        background: var(--gradient);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        font-size: 1.75rem;
-        color: white;
-    }
-
-    .category-title {
-        font-size: 1.25rem;
-        margin-bottom: 0.75rem;
-        font-weight: 600;
-        color: var(--dark-color);
-    }
-
-    .category-description {
-        margin-bottom: 1.5rem;
-    }
-
-    .empty-state {
-        background-color: white;
-        border-radius: var(--border-radius);
-        box-shadow: var(--box-shadow);
-        padding: 3rem;
-    }
-
-    .testimonials-slider {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 1.5rem;
+    /* Avis clients */
+    .testimonials-section {
+      background-color: white;
+      padding: 4rem 0;
+      margin: 3rem 0;
     }
 
     .testimonial-card {
-        background: white;
-        border-radius: var(--border-radius);
-        padding: 2rem;
-        box-shadow: var(--box-shadow);
+      background-color: var(--light-color);
+      border-radius: 10px;
+      padding: 2rem;
+      margin: 1rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
     }
 
-    .testimonial-text {
-        font-style: italic;
-        position: relative;
-        padding-left: 1.5rem;
-        border-left: 3px solid var(--primary-color);
+    .testimonial-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
     }
 
-    .testimonial-author {
-        display: flex;
-        align-items: center;
-        margin-top: 1.5rem;
+    .client-rating {
+      color: #FFD700;
+      margin-bottom: 1rem;
     }
 
-    .author-avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background-color: var(--primary-light);
-        color: var(--primary-color);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 1rem;
+    .client-name {
+      font-weight: bold;
+      margin-top: 1rem;
+      color: var(--secondary-color);
     }
 
-    .author-name {
-        font-weight: 600;
-        color: var(--dark-color);
+    .client-date {
+      font-size: 0.8rem;
+      color: #777;
     }
 
-    @media (max-width: 768px) {
-        .profile-photo, .avatar-placeholder {
-            width: 120px;
-            height: 120px;
-        }
-        
-        .categories-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .hero-content {
-            padding: 2rem 0;
-        }
+    /* Slogans */
+    .slogan-section {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 3rem 0;
+      text-align: center;
+      margin: 3rem 0;
     }
 
-    /* Animation */
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
+    .slogan-item {
+      padding: 1.5rem;
+      margin: 1rem;
+    }
+
+    .slogan-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: white;
+    }
+
+    .slogan-text {
+      font-size: 1.2rem;
+      font-style: italic;
     }
     
-    .profile-hero, .categories-section, .testimonials-section {
-        animation: fadeIn 0.8s ease-out forwards;
+    @media (max-width: 768px) {
+      .logo-artisan {
+        width: 120px;
+        height: 120px;
+        margin-top: -60px;
+      }
+      
+      .gallery-img {
+        height: 180px;
+      }
+      
+      .gallery-item {
+        width: 250px;
+      }
+      
+      .contact-section {
+        padding: 2rem 1rem;
+      }
+    }
+  </style>
+  <style>
+    .category-title {
+        font-family: 'Montserrat', sans-serif;
+        color: var(--secondary-color);
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-top: 1.2rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        position: relative;
+        display: inline-block;
+        padding: 0 10px;
+    }
+
+    .category-title:before, 
+    .category-title:after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: 20px;
+        height: 2px;
+        background-color: var(--primary-color);
+    }
+
+    .category-title:before {
+        left: -25px;
+    }
+
+    .category-title:after {
+        right: -25px;
+    }
+
+    .gallery-item:hover .category-title {
+        color: var(--primary-color);
+    }
+
+    .gallery-item:hover .category-title:before,
+    .gallery-item:hover .category-title:after {
+        width: 30px;
     }
 </style>
+
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+    <div class="container">
+      <a class="navbar-brand text-white fw-bold" href="#">
+        <i class="fas fa-hammer me-2"></i>{{ artisan.get_full_name }}
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="#home"><i class="fas fa-home me-1"></i> Accueil</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#realisations"><i class="fas fa-images me-1"></i> Réalisations</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#avis"><i class="fas fa-star me-1"></i> Avis</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#contact"><i class="fas fa-envelope me-1"></i> Contact</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Image -->
+  <section id="home" class="hero-section">
+    {% if artisan.profile.cover_photo %}
+      <img src="{{ artisan.profile.cover_photo.url }}" class="hero-image" alt="Atelier de {{ artisan.get_full_name }}">
+    {% else %}
+      <img src="{% static 'static/icons/2.jpeg' %}" class="hero-image" alt="Atelier de menuiserie">
+    {% endif %}
+  </section>
+
+  <!-- Main Content -->
+  <div class="container mt-4">
+    <div class="row">
+      <!-- Artisan Profile Section -->
+      <div class="col-lg-4 col-md-5">
+        <div class="text-center">
+          {% if artisan.profile.photo %}
+            <img src="{{ artisan.profile.photo.url }}" alt="{{ artisan.get_full_name }}" class="logo-artisan">
+          {% else %}
+            <div class="logo-artisan d-flex align-items-center justify-content-center" style="background-color: var(--primary-color); color: white; font-size: 3rem; font-weight: bold;">
+              {{ artisan.first_name|first }}{{ artisan.last_name|first }}
+            </div>
+          {% endif %}
+        </div>
+        
+        <div class="artisan-info text-center mt-4">
+          <h2 class="mb-3">{{ artisan.get_full_name }}</h2>
+          <p class="text-muted mb-4">{{ artisan.profile.metier|default:"Artisan Professionnel" }}</p>
+          
+          <div class="text-start contact-info">
+            <p><i class="fas fa-map-marker-alt"></i> <strong>Adresse :</strong> {{ artisan.profile.ville|default:"Non renseigné" }}, {{ artisan.profile.pays|default:"" }}</p>
+            <p><i class="fas fa-phone"></i> <strong>Téléphone :</strong> {{ artisan.profile.telephone|default:"Non renseigné" }}</p>
+            <p><i class="fas fa-envelope"></i> <strong>Email :</strong> {{ artisan.email }}</p>
+            <p><i class="fas fa-clock"></i> <strong>Horaires :</strong> Lun-Sam 8h-18h</p>
+          </div>
+          
+          <div class="social-icons mt-4">
+            {% if artisan.profile.facebook %}
+            <a href="{{ artisan.profile.facebook }}" class="text-decoration-none mx-2" target="_blank"><i class="fab fa-facebook-f fa-lg"></i></a>
+            {% endif %}
+            {% if artisan.profile.instagram %}
+            <a href="{{ artisan.profile.instagram }}" class="text-decoration-none mx-2" target="_blank"><i class="fab fa-instagram fa-lg"></i></a>
+            {% endif %}
+            {% if artisan.profile.whatsapp %}
+            <a href="https://wa.me/{{ artisan.profile.whatsapp }}" class="text-decoration-none mx-2" target="_blank"><i class="fab fa-whatsapp fa-lg"></i></a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+      <!-- Gallery and Content Section -->
+      <div class="col-lg-8 col-md-7">
+        <section id="realisations">
+          <h2 class="section-title text-center">Mes Réalisations</h2>
+          
+          <!-- Galerie horizontale -->
+          <div class="horizontal-gallery">
+            {% if categories %}
+              {% for category in categories %}
+                <div class="gallery-item">
+                  <a href="{% url 'products_by_category' username=artisan.username category_id=category.id %}">
+                    {% if category.preview_image %}
+                      <img src="{{ category.preview_image.url }}" alt="{{ category.name }}" class="gallery-img">
+                    {% else %}
+                      <div class="gallery-img d-flex align-items-center justify-content-center bg-light">
+                        <i class="fas fa-image fa-3x text-muted"></i>
+                      </div>
+                    {% endif %}
+                    <h5 class="category-title">{{ category.name }}</h5>
+                  </a>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="col-12 text-center py-5">
+                <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                <h3>Portfolio en construction</h3>
+                <p class="text-muted">Mes dernières réalisations seront bientôt disponibles</p>
+              </div>
+            {% endif %}
+          </div>
+          
+          <div class="mt-5">
+            <h3 class="section-title text-center">Mon Savoir-Faire</h3>
+            <div class="text-center">
+              {% if artisan.profile.description %}
+                {{ artisan.profile.description|linebreaks }}
+              {% else %}
+                <p>Artisan passionné avec une approche contemporaine du métier, alliant techniques traditionnelles et innovations modernes pour des réalisations d'exception.</p>
+              {% endif %}
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Slogans -->
+  <section id="slogans" class="slogan-section">
+    <div class="container">
+      <h2 class="text-white mb-5">Pourquoi me choisir ?</h2>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="slogan-item">
+            <div class="slogan-icon">
+              <i class="fas fa-medal"></i>
+            </div>
+            <h4>Qualité Exceptionnelle</h4>
+            <p class="slogan-text">"Chaque pièce est façonnée avec le plus grand soin et une attention méticuleuse aux détails."</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="slogan-item">
+            <div class="slogan-icon">
+              <i class="fas fa-handshake"></i>
+            </div>
+            <h4>Approche Personnalisée</h4>
+            <p class="slogan-text">"Votre vision, mon expertise - ensemble, nous créons des pièces uniques qui racontent votre histoire."</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="slogan-item">
+            <div class="slogan-icon">
+              <i class="fas fa-tree"></i>
+            </div>
+            <h4>Matériaux Durables</h4>
+            <p class="slogan-text">"Je travaille exclusivement avec des matériaux de première qualité, sélectionnés pour leur beauté et leur durabilité."</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section Avis Clients -->
+  <section id="avis" class="testimonials-section">
+    <div class="container">
+      <h2 class="section-title text-center">Ce que disent mes clients</h2>
+      
+      <div class="row">
+        <!-- Avis 1 -->
+        <div class="col-md-4">
+          <div class="testimonial-card">
+            <div class="client-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p>"Un travail absolument remarquable ! {{ artisan.first_name }} a su comprendre exactement ce que je voulais et a livré un résultat bien au-delà de mes attentes."</p>
+            <div class="client-name">Marie D.</div>
+            <div class="client-date">15 juin 2023</div>
+          </div>
+        </div>
+        
+        <!-- Avis 2 -->
+        <div class="col-md-4">
+          <div class="testimonial-card">
+            <div class="client-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+            </div>
+            <p>"Professionalisme et créativité au rendez-vous. Les meubles réalisés pour notre salon sont d'une qualité exceptionnelle. Je recommande sans hésitation !"</p>
+            <div class="client-name">Pierre L.</div>
+            <div class="client-date">2 mai 2023</div>
+          </div>
+        </div>
+        
+        <!-- Avis 3 -->
+        <div class="col-md-4">
+          <div class="testimonial-card">
+            <div class="client-rating">
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star"></i>
+              <i class="fas fa-star-half-alt"></i>
+            </div>
+            <p>"Un artisan passionné qui prend le temps d'écouter et de conseiller. Le résultat final est magnifique et s'intègre parfaitement dans notre intérieur."</p>
+            <div class="client-name">Sophie T.</div>
+            <div class="client-date">22 avril 2023</div>
+          </div>
+        </div>
+      </div>
+      
+
+      
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="container">
+    <div class="contact-section">
+      <h2 class="section-title text-center">Contactez-moi</h2>
+      <p class="text-center mb-5">Pour toute demande de devis ou information, n'hésitez pas à me contacter.</p>
+      
+      <div class="row">
+        <div class="col-lg-7 mb-5 mb-lg-0">
+          <form class="contact-form" method="post" action="{% url 'contact_artisan' artisan.username %}">
+            {% csrf_token %}
+            <div class="row">
+              <div class="col-md-6">
+                <input type="text" class="form-control" name="name" placeholder="Votre nom" required>
+              </div>
+              <div class="col-md-6">
+                <input type="email" class="form-control" name="email" placeholder="Votre email" required>
+              </div>
+            </div>
+            <input type="text" class="form-control" name="subject" placeholder="Sujet">
+            <textarea class="form-control" rows="5" name="message" placeholder="Votre message" required></textarea>
+            <div class="text-center">
+              <button type="submit" class="btn btn-primary-custom">Envoyer le message</button>
+            </div>
+          </form>
+        </div>
+        
+        <div class="col-lg-5">
+          <div class="row h-100">
+            <div class="col-md-6 col-lg-12 mb-3 mb-md-0 mb-lg-3">
+              <div class="contact-method">
+                <i class="fas fa-map-marker-alt"></i>
+                <h5>Adresse</h5>
+                <p>{{ artisan.profile.adresse|default:"Non renseigné" }}<br>{{ artisan.profile.ville|default:"" }}, {{ artisan.profile.pays|default:"" }}</p>
+              </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-12 mb-3 mb-md-0 mb-lg-3">
+              <div class="contact-method">
+                <i class="fas fa-phone-alt"></i>
+                <h5>Téléphone</h5>
+                <p>{{ artisan.profile.telephone|default:"Non renseigné" }}</p>
+                <p>Lun-Sam: 8h-18h</p>
+              </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-12">
+              <div class="contact-method">
+                <i class="fas fa-envelope"></i>
+                <h5>Email</h5>
+                <p>{{ artisan.email }}</p>
+                <p>Réponse sous 24h</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="text-center">
+    <div class="container">
+      <div class="row">
+        <div class="col-md-4">
+          <p>Artisanat de qualité depuis {{ artisan.profile.experience_years|default:"plus de 15" }} ans</p>
+        </div>
+        <div class="col-md-4">
+          <h5>Contact Rapide</h5>
+          <p><i class="fas fa-phone me-2"></i> {{ artisan.profile.telephone|default:"Non renseigné" }}</p>
+          <p><i class="fas fa-envelope me-2"></i> {{ artisan.email }}</p>
+        </div>
+        <div class="col-md-4">
+          <h5>Réseaux Sociaux</h5>
+          <div class="social-icons">
+            {% if artisan.profile.facebook %}
+            <a href="{{ artisan.profile.facebook }}" class="text-white mx-2" target="_blank"><i class="fab fa-facebook-f"></i></a>
+            {% endif %}
+            {% if artisan.profile.instagram %}
+            <a href="{{ artisan.profile.instagram }}" class="text-white mx-2" target="_blank"><i class="fab fa-instagram"></i></a>
+            {% endif %}
+            {% if artisan.profile.whatsapp %}
+            <a href="https://wa.me/{{ artisan.profile.whatsapp }}" class="text-white mx-2" target="_blank"><i class="fab fa-whatsapp"></i></a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      <hr class="my-4 bg-light">
+      <p class="mb-0">&copy; {% now "Y" %} {{ artisan.get_full_name }}. Tous droits réservés.</p>
+    </div>
+  </footer>
+
+  <!-- WhatsApp Float Button -->
+  {% if artisan.profile.whatsapp %}
+  <a href="https://wa.me/{{ artisan.profile.whatsapp }}" class="whatsapp-float" target="_blank">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+  {% endif %}
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    document.querySelector('.contact-form')?.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = this;
+      fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+          'X-CSRFToken': form.querySelector('[name=csrfmiddlewaretoken]').value,
+          'Accept': 'application/json',
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert('Merci pour votre message! Je vous contacterai bientôt.');
+          form.reset();
+        } else {
+          alert('Une erreur est survenue: ' + (data.error || 'Veuillez réessayer.'));
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Une erreur réseau est survenue. Veuillez réessayer.');
+      });
+    });
+  </script>
+</body>
+</html>
 {% endblock %}

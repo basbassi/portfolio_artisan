@@ -2,466 +2,767 @@
 
 {% block title %}Tableau de bord | Gestion des Produits{% endblock %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% endblock %}
+
 {% block content %}
-<div class="product-dashboard">
-    <!-- Dashboard Header -->
+<div class="dashboard-container">
+    <!-- Header Section -->
     <header class="dashboard-header">
         <div class="header-content">
             <div class="header-title">
-                <h1><i class="fas fa-boxes"></i> Gestion des Produits</h1>
-                <p class="subtitle">Votre catalogue professionnel</p>
+                <h1><i class="fas fa-boxes"></i> Mon Dashboard Professionnel</h1>
+                <p class="subtitle">Gérez votre portfolio et votre présence en ligne</p>
             </div>
             <div class="header-actions">
-                <a href="/{{ user.username }}/" class="preview-btn">
-                    <i class="fas fa-eye"></i> Voir mon site
+                <a href="{% url 'presentation' username=request.user.username %}" class="action-btn preview" target="_blank">
+                    <i class="fas fa-eye"></i>
+                    <span>Voir mon site</span>
                 </a>
-                <button class="help-btn" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Aide">
-                    <i class="fas fa-question-circle"></i>
-                </button>
+                <a href="{% url 'generate_business_card' %}" class="action-btn generate">
+                    <i class="fas fa-id-card"></i>
+                    <span>Carte de visite</span>
+                </a>
             </div>
         </div>
-        <div class="progress-container">
+        <div class="header-progress">
             <div class="progress-bar" style="width: {{ completion }}%"></div>
-            <span>Complétion du profil: {{ completion }}%</span>
+            <span>Profil complété à {{ completion }}%</span>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="dashboard-main">
-        <!-- Add Product Section -->
-        <section class="add-product-section">
-            <div class="section-header">
-                <h2><i class="fas fa-plus-circle"></i> Ajouter un produit</h2>
-                
+    <!-- Navigation Controls -->
+    <div class="dashboard-controls">
+        <button id="toggleProfileSection" class="control-btn active" data-section="profile">
+            <i class="fas fa-user"></i> Mon Profil
+        </button>
+        <button id="toggleProductsSection" class="control-btn" data-section="products" data-product-count="{{ products.count }}">
+            <i class="fas fa-boxes"></i> Mes Produits
+            {% if products.count > 0 %}
+            <span class="product-counter">{{ products.count }}</span>
+            {% endif %}
+        </button>
+        <button id="toggleSharingSection" class="control-btn" data-section="sharing">
+            <i class="fas fa-share-alt"></i> Partage
+        </button>
+    </div>
+
+    <!-- Profile Section -->
+    <div id="profileSection" class="dashboard-section">
+        <div class="profile-card card">
+            <div class="card-header">
+                <h3><i class="fas fa-user-circle"></i> Mon Profil</h3>
+                <button class="btn-icon-text" id="toggleProfileEdit">
+                    <i class="fas fa-edit"></i> <span>Modifier</span>
+                </button>
             </div>
             
-            <form method="POST" enctype="multipart/form-data" class="product-form">
-                {% csrf_token %}
-                <div class="form-grid">
-                    <!-- Left Column -->
-                    <div class="form-column">
-                        <div class="form-group">
-                            <label for="id_category">
-                                Catégorie <span class="required">*</span>
-                                <i class="fas fa-info-circle" data-bs-toggle="tooltip" title="Sélectionnez la catégorie principale"></i>
-                            </label>
-                            {{ form.category }}
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="id_name">
-                                Nom du produit <span class="required">*</span>
-                            </label>
-                            {{ form.name }}
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="id_description">
-                                Description <span class="required">*</span>
-                                <span class="char-counter">0/500</span>
-                            </label>
-                            {{ form.description }}
-                        </div>
+            <div class="profile-view" id="profileView">
+                <div class="profile-content">
+                    <div class="profile-photo-container">
+                        {% if request.user.profile.photo %}
+                            <img src="{{ request.user.profile.photo.url }}" alt="Photo de profil" class="profile-photo">
+                        {% else %}
+                            <div class="profile-photo-default">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                        {% endif %}
                     </div>
                     
-                    <!-- Right Column -->
-                    <div class="form-column">
-                        <div class="form-group image-uploader">
-                            <label>
-                                Image principale
-                                <span class="upload-hint">(Recommandé: 800x600px)</span>
-                            </label>
-                            <div class="upload-container">
-                                {{ form.image }}
-                                <div class="upload-preview">
-                                    <i class="fas fa-cloud-upload-alt"></i>
-                                    <p>Glissez-déposez ou cliquez pour uploader</p>
-                                    <span class="file-info">Format: JPG, PNG (Max 5MB)</span>
+                    <div class="profile-info-container">
+                        <div class="profile-details-grid">
+                            <div class="profile-detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-user-tag"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <span class="detail-label">Nom complet</span>
+                                    <span class="detail-value">{{ request.user.get_full_name }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="profile-detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <span class="detail-label">Email</span>
+                                    <span class="detail-value">{{ request.user.email }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="profile-detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <span class="detail-label">Téléphone</span>
+                                    <span class="detail-value">{{ request.user.profile.telephone }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="profile-detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <span class="detail-label">Adresse</span>
+                                    <span class="detail-value">{{ request.user.profile.adresse }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="profile-detail-item">
+                                <div class="detail-icon">
+                                    <i class="fas fa-city"></i>
+                                </div>
+                                <div class="detail-content">
+                                    <span class="detail-label">Ville/Pays</span>
+                                    <span class="detail-value">{{ request.user.profile.ville }}, {{ request.user.profile.pays.name }}</span>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="profile-edit" id="profileEdit" style="display: none;">
+                <form id="profileForm" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="profile-edit-grid">
+                        <div class="form-column">
+                            <div class="form-group">
+                                <label>Prénom</label>
+                                <input type="text" name="first_name" value="{{ request.user.first_name }}" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label>Nom</label>
+                                <input type="text" name="last_name" value="{{ request.user.last_name }}" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="email" name="email" value="{{ request.user.email }}" class="form-input">
+                            </div>
+                        </div>
                         
-                        <div class="form-group">
-                            
-                            <div class="tags-input">
-                                {{ form.tags }}
-                                <div class="tags-container"></div>
+                        <div class="form-column">
+                            <div class="form-group">
+                                <label>Téléphone</label>
+                                <input type="text" name="telephone" value="{{ request.user.profile.telephone }}" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label>Ville</label>
+                                <input type="text" name="ville" value="{{ request.user.profile.ville }}" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label>Adresse</label>
+                                <input type="text" name="adresse" value="{{ request.user.profile.adresse }}" class="form-input">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group full-width">
+                            <label>Photo de profil</label>
+                            <div class="profile-photo-upload">
+                                <div class="file-upload-container">
+                                    <input type="file" name="photo" id="id_photo" accept="image/*">
+                                    <div class="upload-preview">
+                                        {% if request.user.profile.photo %}
+                                            <img src="{{ request.user.profile.photo.url }}" id="profilePhotoPreview">
+                                        {% else %}
+                                            <i class="fas fa-camera"></i>
+                                            <p>Cliquez pour ajouter une photo</p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="upload-hint">Format JPG ou PNG (max. 5MB)</div>
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="form-actions">
-                    <button type="button" class="btn-secondary">
-                        <i class="fas fa-times"></i> Annuler
-                    </button>
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-save"></i> Enregistrer le produit
-                    </button>
-                </div>
-            </form>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-outline" id="cancelEdit">
+                            <i class="fas fa-times"></i> Annuler
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products Section -->
+    <div id="productsSection" class="dashboard-section" style="display:none;">
+        <!-- Add Product Section -->
+        <section class="add-product-section card">
+            <div class="card-header">
+                <h3><i class="fas fa-plus-circle"></i> Ajouter un nouveau produit</h3>
+            </div>
+            
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" class="product-form">
+                    {% csrf_token %}
+                    <div class="form-columns">
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label for="id_category">
+                                    Catégorie <span class="required">*</span>
+                                    <i class="fas fa-info-circle help-icon" title="Sélectionnez la catégorie principale"></i>
+                                </label>
+                                {{ form.category }}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="id_name">Nom du produit <span class="required">*</span></label>
+                                {{ form.name }}
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="id_description">
+                                    Description <span class="required">*</span>
+                                    <span class="char-counter">0/500</span>
+                                </label>
+                                {{ form.description }}
+                                <div class="form-hint">Décrivez votre produit en détails</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-col">
+                            <div class="form-group">
+                                <label>Image principale</label>
+                                <div class="image-upload-box">
+                                    {{ form.image }}
+                                    <div class="upload-content">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                        <p>Glissez-déposez votre image ici</p>
+                                        <span class="file-requirements">JPG, PNG (max 5MB)</span>
+                                    </div>
+                                    <div class="preview-container" style="display: none;">
+                                        <img id="imagePreview" src="#" alt="Aperçu de l'image">
+                                        <button type="button" class="btn-change-image">
+                                            <i class="fas fa-sync-alt"></i> Changer
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-footer">
+                        <button type="reset" class="btn-outline">
+                            <i class="fas fa-times"></i> Annuler
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            <i class="fas fa-save"></i> Enregistrer le produit
+                        </button>
+                    </div>
+                </form>
+            </div>
         </section>
 
         <!-- Products Gallery -->
-        <section class="products-gallery">
-            <div class="section-header">
-                <h2><i class="fas fa-th-list"></i> Votre Collection ({{ products.count }})</h2>
-                <div class="gallery-controls">
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" placeholder="Rechercher un produit...">
-                    </div>
-                    <div class="sort-filter">
-                        <select class="form-select">
-                            <option>Trier par: Date récente</option>
-                            <option>Date ancienne</option>
-                            <option>Nom (A-Z)</option>
-                            <option>Nom (Z-A)</option>
-                        </select>
-                        <button class="filter-btn">
-                            <i class="fas fa-filter"></i> Filtres
-                        </button>
-                    </div>
-                </div>
+        <section class="products-section card">
+            <div class="card-header">
+                <h3><i class="fas fa-th-list"></i> Ma Collection ({{ products.count }})</h3>
             </div>
             
-            {% if products %}
-            <div class="products-grid">
-                {% for product in products %}
-                <div class="product-card">
-                    <div class="card-header">
-                        <span class="badge {% if product.is_featured %}featured{% endif %}">
-                            {{ product.category.name }}
-                        </span>
-                        <div class="card-actions">
-                            <a href="{% url 'edit_product' product.id %}" class="action-btn edit-btn">
-                            <i class="fas fa-pencil-alt"></i>
-</a>
-
-                            <a href="{% url 'delete_product' product.id %}" 
-                            class="action-btn delete-btn" 
-                             onclick="return confirm('Supprimer ce produit ?');">
-                            <i class="fas fa-trash-alt"></i>
-                            </a>
-
-                        </div>
-                    </div>
-                    
-                    <div class="product-image-container">
-                        {% if product.image %}
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}">
-                        {% else %}
-                        <div class="image-placeholder">
-                            <i class="fas fa-image"></i>
-                        </div>
-                        {% endif %}
-                        <div class="quick-view">
-                            <button>Voir détails</button>
-                        </div>
-                    </div>
-                    
-                    <div class="product-info">
-                        <h3>{{ product.name }}</h3>
-                        <p class="description">{{ product.description|truncatechars:100 }}</p>
+            <div class="card-body">
+                {% if products %}
+                <div class="products-grid">
+                    {% for product in products %}
+                    <div class="product-item">
+                        <div class="product-badge">{{ product.category.name }}</div>
                         
-                        <div class="product-meta">
-                            <div class="meta-item">
-                                <i class="fas fa-calendar-alt"></i>
-                                <span>{{ product.created_at|date:"d/m/Y" }}</span>
+                        <div class="product-image">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                            {% else %}
+                            <div class="no-image">
+                                <i class="fas fa-image"></i>
                             </div>
-                            <div class="meta-item">
-                                <i class="fas fa-eye"></i>
-                                <span>{{ product.views }} vues</span>
+                            {% endif %}
+                            <div class="product-actions">
+                                <a href="{% url 'edit_product' product.id %}" class="action-icon edit" title="Modifier">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
+                                <a href="{% url 'delete_product' product.id %}" class="action-icon delete" title="Supprimer" 
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');">
+                                    <i class="fas fa-trash-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <div class="product-info">
+                            <h4>{{ product.name }}</h4>
+                            <p class="product-desc">{{ product.description|truncatechars:100 }}</p>
+                            
+                            <div class="product-meta">
+                                <span class="meta-item">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    {{ product.created_at|date:"d/m/Y" }}
+                                </span>
                             </div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
+                
+                <!-- Pagination -->
+                <div class="pagination">
+                    {% if products.has_previous %}
+                        <a href="?page=1" class="page-link first">&laquo;</a>
+                        <a href="?page={{ products.previous_page_number }}" class="page-link">Précédent</a>
+                    {% endif %}
+                    
+                    <span class="current-page">
+                        Page {{ products.number }} sur {{ products.paginator.num_pages }}
+                    </span>
+                    
+                    {% if products.has_next %}
+                        <a href="?page={{ products.next_page_number }}" class="page-link">Suivant</a>
+                        <a href="?page={{ products.paginator.num_pages }}" class="page-link last">&raquo;</a>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-box-open"></i>
+                    </div>
+                    <h4>Votre catalogue est vide</h4>
+                    <p>Commencez par ajouter votre premier produit</p>
+                    <a href="#add-product" class="btn-primary">
+                        <i class="fas fa-plus"></i> Ajouter un produit
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+
+    <!-- Sharing Section -->
+    <div id="sharingSection" class="dashboard-section" style="display:none;">
+        <div class="sharing-card card">
+            <div class="card-header">
+                <h3><i class="fas fa-share-alt"></i> Partager mon portfolio</h3>
             </div>
             
-            <div class="pagination-container">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1">Précédent</a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">Suivant</a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-            {% else %}
-            <div class="empty-state">
-                <div class="empty-content">
-                    <i class="fas fa-box-open"></i>
-                    <h3>Votre catalogue est vide</h3>
-                    <p>Commencez par ajouter votre premier produit</p>
-                    <button class="btn-primary">
-                        <i class="fas fa-plus"></i> Ajouter un produit
+            <div class="card-body">
+                <div class="share-link-container">
+                    <input type="text" id="shareLink" value="{{ request.user.profile.share_link }}" readonly>
+                    <button class="btn-icon" onclick="copyShareLink()" title="Copier le lien">
+                        <i class="fas fa-copy"></i>
                     </button>
                 </div>
+                
+                <div class="qr-section">
+                    <h4>QR Code d'accès</h4>
+                    <div class="qr-code">
+                        <img src="{% url 'download_qr_code' %}" alt="QR Code">
+                    </div>
+                    <a href="{% url 'download_qr_code' %}" class="btn-download">
+                        <i class="fas fa-download"></i> Télécharger
+                    </a>
+                </div>
             </div>
-            {% endif %}
-        </section>
-    </main>
+        </div>
+    </div>
 </div>
 
-<!-- Edit Product Modal -->
-<div class="modal fade" id="editProductModal" tabindex="-1" aria-hidden="true">
-    <!-- Modal content would go here -->
+<!-- Toast Notifications -->
+<div class="toast-notification" id="toastContainer"></div>
+
+<!-- Preview Modal -->
+<div id="previewModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h3>Votre Portfolio en Direct</h3>
+        <iframe id="portfolioPreview" src="{% url 'presentation' username=request.user.username %}" 
+                frameborder="0" style="width:100%; height:70vh;"></iframe>
+        <div class="modal-actions">
+            <a href="{% url 'presentation' username=request.user.username %}" target="_blank" 
+               class="btn-primary">
+                <i class="fas fa-external-link-alt"></i> Ouvrir dans un nouvel onglet
+            </a>
+        </div>
+    </div>
 </div>
 
 <style>
+/* Base Variables */
 :root {
-    --primary: #4361ee;
+    --primary-color: #4361ee;
     --primary-dark: #3a56d4;
-    --secondary: #f72585;
-    --success: #4cc9f0;
-    --warning: #f8961e;
-    --danger: #ef233c;
-    --dark: #1a1a2e;
-    --light: #f8f9fa;
-    --gray: #6c757d;
+    --secondary-color: #f72585;
+    --success-color: #4cc9f0;
+    --warning-color: #f8961e;
+    --danger-color: #ef233c;
+    --dark-color: #1a1a2e;
+    --light-color: #f8f9fa;
+    --gray-color: #6c757d;
     --light-gray: #e9ecef;
+    --border-color: #e0e0e0;
     
-    --border-radius: 10px;
-    --box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    --border-radius: 12px;
+    --border-radius-sm: 8px;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --transition: all 0.3s ease;
 }
 
-.product-dashboard {
+/* Base Styles */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+    line-height: 1.6;
+    color: var(--dark-color);
+    background-color: #f5f7fa;
+}
+
+.dashboard-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 2rem;
-    font-family: 'Segoe UI', system-ui, sans-serif;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 }
 
 /* Header Styles */
 .dashboard-header {
-    margin-bottom: 2.5rem;
-    position: relative;
+    background: white;
+    border-radius: var(--border-radius);
+    padding: 20px;
+    box-shadow: var(--box-shadow);
 }
 
 .header-content {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1.5rem;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
 }
 
 .header-title h1 {
-    font-size: 2rem;
+    font-size: 1.75rem;
     font-weight: 700;
-    color: var(--dark);
-    margin: 0;
+    color: var(--dark-color);
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 12px;
+    margin-bottom: 5px;
 }
 
 .header-title .subtitle {
-    color: var(--gray);
+    color: var(--gray-color);
     font-size: 1rem;
-    margin: 0.25rem 0 0;
 }
 
 .header-actions {
     display: flex;
-    gap: 1rem;
+    gap: 12px;
+    flex-wrap: wrap;
 }
 
-.preview-btn {
-    background: var(--primary);
-    color: white;
-    border: none;
-    padding: 0.6rem 1.25rem;
-    border-radius: var(--border-radius);
+.action-btn {
+    padding: 10px 16px;
+    border-radius: 8px;
     font-weight: 500;
-    text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    transition: var(--transition);
-}
-
-.preview-btn:hover {
-    background: var(--primary-dark);
-    transform: translateY(-2px);
-    box-shadow: var(--box-shadow);
-}
-
-.help-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: white;
-    border: 1px solid var(--light-gray);
-    color: var(--gray);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    gap: 8px;
     cursor: pointer;
     transition: var(--transition);
+    border: none;
+    font-size: 0.95rem;
 }
 
-.help-btn:hover {
-    background: var(--light-gray);
-    color: var(--dark);
+.action-btn.preview {
+    background: var(--primary-color);
+    color: white;
 }
 
-.progress-container {
-    background: var(--light-gray);
-    height: 8px;
-    border-radius: 4px;
-    position: relative;
-    margin-top: 1.5rem;
+.action-btn.generate {
+    background: white;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.action-btn.preview:hover {
+    background: var(--primary-dark);
+}
+
+.action-btn.generate:hover {
+    background: var(--light-color);
+}
+
+.header-progress {
+    width: 100%;
+    margin-top: 15px;
 }
 
 .progress-bar {
-    background: var(--primary);
-    height: 100%;
-    border-radius: 4px;
+    height: 6px;
+    background: var(--primary-color);
+    border-radius: 3px;
+    margin-bottom: 6px;
     transition: width 0.6s ease;
 }
 
-.progress-container span {
-    position: absolute;
-    right: 0;
-    top: -25px;
-    font-size: 0.8rem;
-    color: var(--gray);
+.header-progress span {
+    font-size: 0.85rem;
+    color: var(--gray-color);
 }
 
-/* Form Section */
-.add-product-section {
+/* Navigation Controls */
+.dashboard-controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.control-btn {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    background: #f0f2f5;
+    color: #4a5568;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.control-btn:hover {
+    background: #e2e8f0;
+    transform: translateY(-2px);
+}
+
+.control-btn.active {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+}
+
+.product-counter {
+    background: var(--success-color);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    margin-left: 5px;
+}
+
+/* Dashboard Sections */
+.dashboard-section {
+    display: none;
+    animation-duration: 0.5s;
+}
+
+/* Card Styles */
+.card {
     background: white;
     border-radius: var(--border-radius);
     box-shadow: var(--box-shadow);
-    padding: 2rem;
-    margin-bottom: 3rem;
+    overflow: hidden;
+    transition: var(--transition);
+    margin-bottom: 24px;
 }
 
-.section-header {
+.card:last-child {
+    margin-bottom: 0;
+}
+
+.card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.card-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
-    border-bottom: 1px solid var(--light-gray);
-    padding-bottom: 1rem;
 }
 
-.section-header h2 {
-    font-size: 1.5rem;
-    margin: 0;
+.card-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--dark-color);
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    color: var(--dark);
+    gap: 10px;
+    margin: 0;
 }
 
-.section-tabs {
+.card-body {
+    padding: 24px;
+}
+
+/* Profile Section Styles */
+.profile-view {
+    padding: 20px;
+}
+
+.profile-content {
     display: flex;
-    gap: 0.5rem;
+    flex-direction: column;
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
-.tab-btn {
-    background: none;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition);
+.profile-photo-container {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 4px solid var(--primary-color);
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+    margin-bottom: 25px;
 }
 
-.tab-btn.active {
-    background: var(--primary);
-    color: white;
+.profile-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-.tab-btn:not(.active):hover {
-    background: var(--light-gray);
+.profile-photo-default {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f2f5;
+    color: #c2c7d0;
+    font-size: 4rem;
 }
 
-.form-grid {
+.profile-info-container {
+    width: 100%;
+}
+
+.profile-details-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
+    grid-template-columns: 1fr;
+    gap: 15px;
+    width: 100%;
+}
+
+.profile-detail-item {
+    display: flex;
+    align-items: center;
+    background: #f9fafc;
+    border-radius: 10px;
+    padding: 15px;
+    transition: all 0.3s ease;
+}
+
+.profile-detail-item:hover {
+    background: #f0f4ff;
+    transform: translateY(-2px);
+}
+
+.detail-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(67, 97, 238, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    color: var(--primary-color);
+    font-size: 1.1rem;
+}
+
+.detail-content {
+    flex: 1;
+    text-align: left;
+}
+
+.detail-label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--gray-color);
+    margin-bottom: 3px;
+}
+
+.detail-value {
+    display: block;
+    font-size: 1rem;
+    color: var(--dark-color);
+    font-weight: 500;
+    word-break: break-word;
+}
+
+/* Profile Edit Form */
+.profile-edit {
+    padding: 20px;
+}
+
+.profile-edit-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
 }
 
 .form-column {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 15px;
 }
 
 .form-group {
-    position: relative;
+    margin-bottom: 0;
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
-    color: var(--dark);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.form-group label .required {
-    color: var(--danger);
-}
-
-.form-group label i {
-    color: var(--gray);
-    cursor: help;
-}
-
-.form-control, .form-select {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--light-gray);
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: var(--transition);
-}
-
-.form-control:focus, .form-select:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
-    outline: none;
-}
-
-.char-counter {
-    font-size: 0.75rem;
-    color: var(--gray);
-    margin-left: auto;
-}
-
-/* Image Uploader */
-.image-uploader .upload-container {
-    position: relative;
-    height: 200px;
-    border: 2px dashed var(--light-gray);
-    border-radius: var(--border-radius);
-    overflow: hidden;
+.profile-photo-upload {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    transition: var(--transition);
+    margin-top: 20px;
 }
 
-.image-uploader .upload-container:hover {
-    border-color: var(--primary);
+.file-upload-container {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px dashed #d1d7e0;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.image-uploader input[type="file"] {
+.file-upload-container:hover {
+    border-color: var(--primary-color);
+    background: rgba(67, 97, 238, 0.05);
+}
+
+.file-upload-container input[type="file"] {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -470,64 +771,64 @@
 }
 
 .upload-preview {
-    text-align: center;
-    padding: 1rem;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    color: #c2c7d0;
+}
+
+.upload-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .upload-preview i {
     font-size: 2.5rem;
-    color: var(--primary);
-    margin-bottom: 1rem;
+    margin-bottom: 10px;
 }
 
 .upload-preview p {
-    margin: 0 0 0.5rem;
-    font-weight: 500;
-    color: var(--dark);
+    font-size: 0.9rem;
+    text-align: center;
+    margin: 0;
 }
 
-.upload-hint, .file-info {
+.upload-hint {
     font-size: 0.8rem;
-    color: var(--gray);
+    color: var(--gray-color);
+    margin-top: 10px;
+    text-align: center;
 }
 
-/* Tags Input */
-.tags-input {
-    border: 1px solid var(--light-gray);
-    border-radius: 8px;
-    padding: 0.5rem;
-}
-
-.tags-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-}
-
-/* Form Actions */
 .form-actions {
     display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--light-gray);
+    justify-content: center;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eaeef5;
 }
 
-.btn-primary, .btn-secondary {
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
+/* Button Styles */
+.btn-primary, .btn-outline {
+    padding: 12px 24px;
+    border-radius: var(--border-radius-sm);
     font-weight: 500;
+    cursor: pointer;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
+    gap: 8px;
     transition: var(--transition);
+    font-size: 1rem;
 }
 
 .btn-primary {
-    background: var(--primary);
+    background: var(--primary-color);
     color: white;
     border: none;
 }
@@ -535,343 +836,996 @@
 .btn-primary:hover {
     background: var(--primary-dark);
     transform: translateY(-2px);
-    box-shadow: var(--box-shadow);
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
 }
 
-.btn-secondary {
+.btn-outline {
     background: white;
-    color: var(--gray);
-    border: 1px solid var(--light-gray);
+    color: var(--dark-color);
+    border: 1px solid var(--border-color);
 }
 
-.btn-secondary:hover {
-    background: var(--light-gray);
+.btn-outline:hover {
+    background: var(--light-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
 }
 
-/* Products Gallery */
-.products-gallery {
-    background: white;
-    border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    padding: 2rem;
-}
-
-.gallery-controls {
-    display: flex;
-    gap: 1rem;
-}
-
-.search-box {
-    flex: 1;
-    position: relative;
-}
-
-.search-box i {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--gray);
-}
-
-.search-box input {
-    width: 100%;
-    padding: 0.75rem 1rem 0.75rem 2.5rem;
-    border: 1px solid var(--light-gray);
-    border-radius: 8px;
-    font-size: 1rem;
-}
-
-.sort-filter {
-    display: flex;
-    gap: 1rem;
-}
-
-.filter-btn {
-    background: white;
-    border: 1px solid var(--light-gray);
-    border-radius: 8px;
-    padding: 0 1rem;
+.btn-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: white;
+    border: none;
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    color: var(--gray);
+    justify-content: center;
+    cursor: pointer;
     transition: var(--transition);
 }
 
-.filter-btn:hover {
-    background: var(--light-gray);
+.btn-icon:hover {
+    background: var(--primary-dark);
+    transform: scale(1.05);
+}
+
+.btn-icon-text {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition);
+}
+
+.btn-icon-text:hover {
+    background: var(--primary-dark);
+}
+
+.btn-download {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.95rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.btn-download:hover {
+    background: var(--primary-dark);
+}
+
+/* Sharing Section */
+.share-link-container {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.share-link-container input {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-size: 0.95rem;
+    min-width: 0;
+}
+
+.qr-section {
+    text-align: center;
+    padding: 20px;
+    border-radius: var(--border-radius-sm);
+    background: var(--light-color);
+    margin-top: 20px;
+}
+
+.qr-section h4 {
+    margin-bottom: 16px;
+    font-size: 1.1rem;
+    color: var(--dark-color);
+}
+
+.qr-code {
+    width: 160px;
+    height: 160px;
+    margin: 0 auto 16px;
+    padding: 12px;
+    background: white;
+    border-radius: var(--border-radius-sm);
+    border: 1px solid var(--border-color);
+}
+
+.qr-code img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Products Section */
+.form-columns {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-col {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--dark-color);
+    font-size: 0.95rem;
+}
+
+.form-input, .form-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.form-input:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    outline: none;
+}
+
+.required {
+    color: var(--danger-color);
+}
+
+.help-icon {
+    color: var(--gray-color);
+    cursor: help;
+}
+
+.form-hint {
+    font-size: 0.85rem;
+    color: var(--gray-color);
+    margin-top: 6px;
+}
+
+.char-counter {
+    font-size: 0.8rem;
+    color: var(--gray-color);
+    float: right;
+}
+
+/* Image Upload Box */
+.image-upload-box {
+    border: 2px dashed var(--border-color);
+    border-radius: var(--border-radius-sm);
+    padding: 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition);
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-upload-box:hover {
+    border-color: var(--primary-color);
+    background: rgba(67, 97, 238, 0.03);
+}
+
+.image-upload-box input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+}
+
+.upload-content {
+    pointer-events: none;
+    text-align: center;
+}
+
+.upload-content i {
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 12px;
+}
+
+.upload-content p {
+    font-size: 1rem;
+    color: var(--dark-color);
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.file-requirements {
+    font-size: 0.85rem;
+    color: var(--gray-color);
+}
+
+.preview-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-container img {
+    max-width: 100%;
+    max-height: 80%;
+    object-fit: contain;
+    margin-bottom: 12px;
+}
+
+.btn-change-image {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: var(--border-radius-sm);
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.form-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
 }
 
 /* Products Grid */
 .products-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin: 2rem 0;
+    gap: 20px;
+    margin: 20px 0;
 }
 
-.product-card {
-    border: 1px solid var(--light-gray);
-    border-radius: var(--border-radius);
+.product-item {
+    background: white;
+    border-radius: var(--border-radius-sm);
     overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
     transition: var(--transition);
+    position: relative;
 }
 
-.product-card:hover {
+.product-item:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.75rem;
-    background: var(--light);
-}
-
-.badge {
-    padding: 0.25rem 0.75rem;
+.product-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 4px 12px;
     border-radius: 50px;
     font-size: 0.75rem;
-    font-weight: 600;
-    background: var(--light-gray);
-    color: var(--dark);
+    font-weight: 500;
+    z-index: 1;
 }
 
-.badge.featured {
-    background: var(--warning);
-    color: white;
-}
-
-.card-actions {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.action-btn {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: none;
-    background: white;
-    color: var(--gray);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: var(--transition);
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-}
-
-.action-btn:hover {
-    transform: scale(1.1);
-}
-
-.edit-btn:hover {
-    background: var(--primary);
-    color: white;
-}
-
-.delete-btn:hover {
-    background: var(--danger);
-    color: white;
-}
-
-.product-image-container {
-    height: 200px;
+.product-image {
+    height: 180px;
     position: relative;
     overflow: hidden;
 }
 
-.product-image-container img {
+.product-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: var(--transition);
+    transition: transform 0.5s ease;
 }
 
-.product-card:hover .product-image-container img {
+.product-item:hover .product-image img {
     transform: scale(1.05);
 }
 
-.image-placeholder {
+.no-image {
     width: 100%;
     height: 100%;
     background: var(--light-gray);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--gray);
-    font-size: 3rem;
+    color: var(--gray-color);
+    font-size: 2.5rem;
 }
 
-.quick-view {
+.product-actions {
     position: absolute;
-    bottom: -50px;
-    left: 0;
-    right: 0;
-    padding: 1rem;
-    background: rgba(0, 0, 0, 0.7);
-    text-align: center;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+    opacity: 0;
     transition: var(--transition);
 }
 
-.product-card:hover .quick-view {
-    bottom: 0;
+.product-item:hover .product-actions {
+    opacity: 1;
 }
 
-.quick-view button {
+.action-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
     background: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 50px;
-    font-weight: 500;
+    color: var(--gray-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
     transition: var(--transition);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.quick-view button:hover {
-    background: var(--primary);
+.action-icon.edit:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.action-icon.delete:hover {
+    background: var(--danger-color);
     color: white;
 }
 
 .product-info {
-    padding: 1.25rem;
+    padding: 16px;
 }
 
-.product-info h3 {
-    margin: 0 0 0.5rem;
+.product-info h4 {
     font-size: 1.1rem;
-    color: var(--dark);
+    margin-bottom: 8px;
+    color: var(--dark-color);
 }
 
-.product-info .description {
-    color: var(--gray);
+.product-desc {
     font-size: 0.9rem;
-    margin: 0 0 1rem;
+    color: var(--gray-color);
+    margin-bottom: 12px;
     line-height: 1.5;
 }
 
 .product-meta {
     display: flex;
     justify-content: space-between;
-    font-size: 0.8rem;
-    color: var(--gray);
+    font-size: 0.85rem;
+    color: var(--gray-color);
 }
 
 .meta-item {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 6px;
 }
 
 /* Empty State */
 .empty-state {
-    padding: 4rem 2rem;
+    padding: 40px 20px;
     text-align: center;
 }
 
-.empty-content i {
+.empty-icon {
     font-size: 3rem;
     color: var(--light-gray);
-    margin-bottom: 1.5rem;
+    margin-bottom: 16px;
 }
 
-.empty-content h3 {
-    color: var(--dark);
-    margin-bottom: 0.5rem;
+.empty-state h4 {
+    font-size: 1.25rem;
+    color: var(--dark-color);
+    margin-bottom: 8px;
 }
 
-.empty-content p {
-    color: var(--gray);
-    margin-bottom: 1.5rem;
+.empty-state p {
+    color: var(--gray-color);
+    margin-bottom: 20px;
 }
 
 /* Pagination */
-.pagination-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 2rem;
-}
-
 .pagination {
     display: flex;
-    gap: 0.5rem;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    margin-top: 30px;
+    flex-wrap: wrap;
 }
 
-.page-item .page-link {
-    padding: 0.5rem 0.75rem;
-    border-radius: 6px;
-    color: var(--gray);
+.page-link {
+    padding: 8px 16px;
+    border-radius: var(--border-radius-sm);
     text-decoration: none;
+    color: var(--dark-color);
+    font-size: 0.95rem;
+    border: 1px solid var(--border-color);
     transition: var(--transition);
 }
 
-.page-item.active .page-link {
-    background: var(--primary);
+.page-link:hover {
+    background: var(--light-color);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.current-page {
+    padding: 8px 16px;
+    font-size: 0.95rem;
+    color: var(--gray-color);
+}
+
+/* Toast Notification */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    padding: 16px 24px;
+    border-radius: var(--border-radius-sm);
+    background: var(--dark-color);
     color: white;
-    border-color: var(--primary);
+    box-shadow: var(--box-shadow);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideIn 0.3s ease forwards;
 }
 
-.page-item:not(.active) .page-link:hover {
-    background: var(--light-gray);
+.toast.success {
+    background: var(--success-color);
 }
 
-/* Responsive */
-@media (max-width: 992px) {
-    .form-grid {
-        grid-template-columns: 1fr;
+.toast.error {
+    background: var(--danger-color);
+}
+
+.toast.warning {
+    background: var(--warning-color);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
     }
 }
 
-@media (max-width: 768px) {
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+    animation: fadeIn 0.3s;
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 24px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 900px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    position: relative;
+    animation: slideDown 0.4s;
+}
+
+.close-modal {
+    position: absolute;
+    right: 24px;
+    top: 24px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+}
+
+.close-modal:hover {
+    color: var(--dark-color);
+}
+
+.modal h3 {
+    margin-bottom: 20px;
+    color: var(--dark-color);
+    font-size: 1.5rem;
+}
+
+.modal-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideDown {
+    from { 
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to { 
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Responsive Adjustments */
+@media (min-width: 768px) {
+    .profile-edit-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .form-columns {
+        flex-direction: row;
+    }
+    
     .header-content {
-        flex-direction: column;
-        gap: 1rem;
+        flex-direction: row;
+        align-items: center;
     }
     
-    .gallery-controls {
-        flex-direction: column;
-    }
-    
-    .products-grid {
+    .profile-details-grid {
         grid-template-columns: 1fr 1fr;
     }
 }
 
 @media (max-width: 576px) {
-    .product-dashboard {
-        padding: 1rem;
+    .dashboard-container {
+        padding: 12px;
     }
     
-    .section-header {
+    .card-header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 1rem;
+        gap: 12px;
     }
     
-    .products-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .form-actions {
+    .form-actions, .form-footer {
         flex-direction: column;
     }
     
-    .btn-primary, .btn-secondary {
+    .btn-primary, .btn-outline {
         width: 100%;
         justify-content: center;
     }
+    
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .dashboard-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .control-btn {
+        justify-content: center;
+    }
+    
+    .profile-details-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        margin: 20% auto;
+        width: 95%;
+        padding: 20px 15px;
+    }
 }
 </style>
+<style>
+/* Styles Professionnels pour la Section Produits */
+.pro-card {
+    border: 1px solid #e0e6ed;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 24px;
+}
 
+.pro-card-header {
+    border-bottom: 1px solid #f1f5f9;
+    padding: 18px 24px;
+    background: #f9fafc;
+}
+
+.pro-card-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.form-steps {
+    display: flex;
+    gap: 20px;
+    margin-top: 12px;
+    padding-bottom: 8px;
+}
+
+.form-steps .step {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    position: relative;
+    padding-left: 24px;
+}
+
+.form-steps .step:before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    border: 2px solid #cbd5e1;
+}
+
+.form-steps .step.active {
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.form-steps .step.active:before {
+    background: #4361ee;
+    border-color: #4361ee;
+}
+
+.pro-form-group {
+    margin-bottom: 20px;
+}
+
+.pro-form-group label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #334155;
+    margin-bottom: 8px;
+}
+
+/* Styles pour les inputs existants - ne modifie pas leur structure HTML */
+.pro-form-group input[type="text"],
+.pro-form-group input[type="number"],
+.pro-form-group textarea,
+.pro-form-group select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.pro-form-group input[type="text"]:focus,
+.pro-form-group input[type="number"]:focus,
+.pro-form-group textarea:focus,
+.pro-form-group select:focus {
+    border-color: #4361ee;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    outline: none;
+}
+
+.select-wrapper {
+    position: relative;
+}
+
+.select-wrapper select {
+    appearance: none;
+    padding-right: 36px;
+}
+
+.select-wrapper i {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #64748b;
+    font-size: 0.9em;
+}
+
+.input-with-icon {
+    position: relative;
+}
+
+.input-with-icon i {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 0.9em;
+}
+
+/* Style pour la zone d'upload existante */
+.pro-upload-box {
+    height: 180px;
+    border: 1px dashed #cbd5e1;
+    background: #f8fafc;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.pro-upload-box:hover {
+    border-color: #94a3b8;
+    background: #f1f5f9;
+}
+
+.upload-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.upload-header span:first-child {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #334155;
+}
+
+.upload-required {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.upload-optional {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+/* Style pour le footer du formulaire */
+.pro-form-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 20px;
+    border-top: 1px solid #f1f5f9;
+    margin-top: 24px;
+}
+
+.pro-submit-btn {
+    padding: 10px 24px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .form-steps {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .form-steps .step:after {
+        display: none;
+    }
+    
+    .pro-form-footer {
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+</style>
+<style>
+/* Styles minimalistes pour améliorer l'existant sans modifications structurelles */
+.add-product-section {
+    border: 1px solid #e1e5eb;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.card-header {
+    background-color: #f8fafc;
+    padding: 18px 25px;
+    border-bottom: 1px solid #eaeff5;
+}
+
+.card-header h3 {
+    font-size: 1.2rem;
+    color: #2d3748;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-body {
+    padding: 25px;
+}
+
+.form-columns {
+    display: flex;
+    gap: 30px;
+}
+
+.form-col {
+    flex: 1;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+/* Styles des champs existants - structure inchangée */
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #d1d9e6;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: #4361ee;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+    outline: none;
+}
+
+.form-group textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.required {
+    color: #e53e3e;
+    margin-left: 3px;
+}
+
+.help-icon {
+    color: #a0aec0;
+    margin-left: 5px;
+    cursor: help;
+}
+
+/* Zone d'upload - structure inchangée */
+.image-upload-box {
+    border: 2px dashed #d1d9e6;
+    border-radius: 8px;
+    padding: 25px;
+    text-align: center;
+    background-color: #f8fafc;
+    transition: all 0.2s ease;
+}
+
+.image-upload-box:hover {
+    border-color: #a3bffa;
+    background-color: #f0f4ff;
+}
+
+.upload-content i {
+    color: #718096;
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.upload-content p {
+    color: #4a5568;
+    margin-bottom: 5px;
+}
+
+.file-requirements {
+    font-size: 0.85rem;
+    color: #a0aec0;
+}
+
+/* Footer du formulaire - structure inchangée */
+.form-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #eaeff5;
+}
+
+/* Responsive - préserve la structure */
+@media (max-width: 768px) {
+    .form-columns {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .card-body {
+        padding: 20px;
+    }
+}
+</style>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize tooltips
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
+    const tooltips = document.querySelectorAll('[title]');
+    tooltips.forEach(el => {
+        new bootstrap.Tooltip(el);
     });
     
     // Character counter for description
@@ -884,28 +1838,62 @@ document.addEventListener('DOMContentLoaded', function() {
             charCounter.textContent = `${currentLength}/500`;
             
             if (currentLength > 450) {
-                charCounter.style.color = 'var(--warning)';
+                charCounter.style.color = 'var(--warning-color)';
             } else {
-                charCounter.style.color = 'var(--gray)';
+                charCounter.style.color = 'var(--gray-color)';
             }
         });
+        
+        // Initialize counter
+        descriptionField.dispatchEvent(new Event('input'));
     }
     
     // Image upload preview
-    const fileInput = document.querySelector('.image-uploader input[type="file"]');
-    const uploadPreview = document.querySelector('.upload-preview');
-    
-    if (fileInput && uploadPreview) {
-        fileInput.addEventListener('change', function() {
+    const imageUpload = document.querySelector('.image-upload-box input[type="file"]');
+    if (imageUpload) {
+        imageUpload.addEventListener('change', function() {
+            const previewContainer = this.closest('.image-upload-box').querySelector('.preview-container');
+            const uploadContent = this.closest('.image-upload-box').querySelector('.upload-content');
+            
             if (this.files && this.files[0]) {
                 const reader = new FileReader();
                 
                 reader.onload = function(e) {
-                    uploadPreview.innerHTML = `
-                        <img src="${e.target.result}" class="img-preview" style="max-width: 100%; max-height: 150px; border-radius: 5px;">
-                        <p>${fileInput.files[0].name}</p>
-                        <span class="file-info">${(fileInput.files[0].size / 1024 / 1024).toFixed(2)} MB</span>
-                    `;
+                    const previewImg = previewContainer.querySelector('img');
+                    previewImg.src = e.target.result;
+                    uploadContent.style.display = 'none';
+                    previewContainer.style.display = 'flex';
+                }
+                
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+        
+        // Change image button
+        document.querySelector('.btn-change-image')?.addEventListener('click', function() {
+            imageUpload.value = '';
+            const previewContainer = this.closest('.preview-container');
+            const uploadContent = previewContainer.closest('.image-upload-box').querySelector('.upload-content');
+            previewContainer.style.display = 'none';
+            uploadContent.style.display = 'block';
+        });
+    }
+    
+    // Profile photo upload
+    const profilePhotoInput = document.getElementById('id_photo');
+    if (profilePhotoInput) {
+        profilePhotoInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                const preview = document.getElementById('profilePhotoPreview') || 
+                                 document.querySelector('.upload-preview');
+                
+                reader.onload = function(e) {
+                    if (preview.tagName === 'IMG') {
+                        preview.src = e.target.result;
+                    } else {
+                        preview.innerHTML = `<img src="${e.target.result}" id="profilePhotoPreview">`;
+                    }
                 }
                 
                 reader.readAsDataURL(this.files[0]);
@@ -913,24 +1901,195 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Edit/Delete buttons functionality
-    document.querySelectorAll('.edit-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const productId = this.getAttribute('data-product-id');
-            // Open edit modal with productId
-            console.log('Edit product', productId);
-        });
-    });
+    // Profile edit toggle
+    const toggleEditBtn = document.getElementById('toggleProfileEdit');
+    const cancelEditBtn = document.getElementById('cancelEdit');
+    const profileView = document.getElementById('profileView');
+    const profileEdit = document.getElementById('profileEdit');
     
-    document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const productId = this.getAttribute('data-product-id');
-            // Confirm and delete product
-            if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
-                console.log('Delete product', productId);
+    if (toggleEditBtn) {
+        toggleEditBtn.addEventListener('click', function() {
+            profileView.style.display = 'none';
+            profileEdit.style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+    
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', function() {
+            profileView.style.display = 'block';
+            profileEdit.style.display = 'none';
+        });
+    }
+    
+    // Form submission with loading state
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> En cours...';
+                submitBtn.disabled = true;
             }
         });
     });
+    
+    // Auto-dismiss toasts
+    const toasts = document.querySelectorAll('.toast');
+    toasts.forEach(toast => {
+        setTimeout(() => {
+            toast.remove();
+        }, 5000);
+    });
+    
+    // Section navigation
+    const sections = {
+        profile: document.getElementById('profileSection'),
+        products: document.getElementById('productsSection'),
+        sharing: document.getElementById('sharingSection')
+    };
+    
+    const buttons = {
+        profile: document.getElementById('toggleProfileSection'),
+        products: document.getElementById('toggleProductsSection'),
+        sharing: document.getElementById('toggleSharingSection')
+    };
+
+    function showSection(sectionToShow) {
+        // Hide all sections
+        Object.values(sections).forEach(section => {
+            section.style.display = 'none';
+        });
+        
+        // Deactivate all buttons
+        Object.values(buttons).forEach(button => {
+            button.classList.remove('active');
+        });
+        
+        // Show selected section
+        sections[sectionToShow].style.display = 'block';
+        buttons[sectionToShow].classList.add('active');
+        
+        // Add animation
+        sections[sectionToShow].classList.add('animate__animated', 'animate__fadeIn');
+        
+        // Save state to localStorage
+        localStorage.setItem('lastActiveSection', sectionToShow);
+    }
+
+    // Add event listeners
+    buttons.profile.addEventListener('click', () => showSection('profile'));
+    buttons.products.addEventListener('click', () => showSection('products'));
+    buttons.sharing.addEventListener('click', () => showSection('sharing'));
+
+    // Load last active section or default to profile
+    const lastSection = localStorage.getItem('lastActiveSection') || 'profile';
+    showSection(lastSection);
+    
+    // If user has products, highlight the products button
+    const productCount = parseInt(buttons.products.dataset.productCount) || 0;
+    if (productCount > 0) {
+        buttons.products.classList.add('has-products');
+    }
+    
+    // Preview modal functionality
+    const previewModal = document.getElementById('previewModal');
+    const previewBtn = document.querySelector('.action-btn.preview');
+    const closeModal = document.querySelector('.close-modal');
+    
+    if (previewBtn) {
+        previewBtn.addEventListener('click', function(e) {
+            if (!e.target.closest('a')) { // Don't open modal if clicking on link
+                e.preventDefault();
+                previewModal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+        });
+    }
+    
+    if (closeModal) {
+        closeModal.addEventListener('click', function() {
+            previewModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        });
+    }
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if (event.target === previewModal) {
+            previewModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    });
 });
+
+// Copy share link function
+function copyShareLink() {
+    const shareLink = document.getElementById('shareLink');
+    shareLink.select();
+    document.execCommand('copy');
+    
+    // Show toast notification
+    showToast('Lien copié dans le presse-papiers', 'success');
+}
+
+// Show toast notification
+function showToast(message, type = 'success') {
+    const toastContainer = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    toast.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        <span>${message}</span>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+
+// Handle profile form submission with AJAX
+const profileForm = document.getElementById('profileForm');
+if (profileForm) {
+    profileForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...';
+        submitBtn.disabled = true;
+        
+        const formData = new FormData(this);
+        
+        fetch('{% url "update_profile" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showToast('Profil mis à jour avec succès', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showToast(data.error || 'Erreur lors de la mise à jour', 'error');
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            showToast('Une erreur est survenue', 'error');
+            submitBtn.innerHTML = originalBtnText;
+            submitBtn.disabled = false;
+        });
+    });
+}
 </script>
 {% endblock %}

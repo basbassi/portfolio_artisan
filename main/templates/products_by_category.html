@@ -1,438 +1,299 @@
-{% extends 'base.html' %}
+{% extends 'base_minimal.html' %}
+{% load static %}
 
-{% block title %}{{ category.name }} | Portfolio de {{ artisan.username }}{% endblock %}
+{% block title %}{{ category.name }} | {{ artisan.username }}{% endblock %}
 
 {% block content %}
-<div class="category-page">
-    <!-- Hero Section -->
-    <div class="category-hero">
-        <div class="hero-content">
-            <div class="container">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="/{{ artisan.username }}/"><i class="fas fa-home"></i> Portfolio</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
-                    </ol>
-                </nav>
-                <h1>{{ category.name }}</h1>
-                <p class="hero-description">{{ category.description|default:"Découvrez mes réalisations expertes dans cette spécialité" }}</p>
-            </div>
+<div class="mobile-portfolio">
+
+  <!-- Header avec bouton retour -->
+  <header class="mobile-header">
+    <a href="{% url 'presentation' username=artisan.username %}" class="back-button">
+  <i class="fas fa-chevron-left"></i>
+</a>
+    <h1>{{ category.name }}</h1>
+  </header>
+
+  <!-- Contenu principal -->
+  <main class="mobile-content">
+    
+    <!-- Section description -->
+    <section class="category-description">
+      <p>{{ category.description|default:"Découvrez mes réalisations dans cette catégorie" }}</p>
+    </section>
+
+    <!-- Grille des produits -->
+    <div class="mobile-grid">
+      {% for product in products %}
+      <div class="product-card">
+        <div class="product-image">
+          {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+          {% else %}
+          <div class="image-placeholder">
+            <i class="fas fa-image"></i>
+          </div>
+          {% endif %}
         </div>
+        <div class="product-info">
+          <h3>{{ product.name }}</h3>
+          <p>{{ product.description|truncatechars:80 }}</p>
+          <a href="{% url 'product_detail' artisan.username product.id %}" class="view-button">
+            Voir plus
+          </a>
+        </div>
+      </div>
+      {% empty %}
+      <div class="empty-message">
+        <i class="fas fa-box-open"></i>
+        <p>Aucune réalisation disponible</p>
+      </div>
+      {% endfor %}
     </div>
+  </main>
 
-    <!-- Main Content -->
-    <div class="container py-5">
-        <!-- Category Description -->
-        {% if category.description %}
-        <div class="category-description mb-5">
-            <div class="row">
-                <div class="col-lg-8 mx-auto text-center">
-                    <p class="lead">{{ category.description }}</p>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Products Grid -->
-        <div class="products-section">
-            {% if products %}
-            <div class="row g-4">
-                {% for product in products %}
-                <div class="col-lg-4 col-md-6">
-                    <div class="product-card">
-                        <div class="product-image-wrapper">
-                            {% if product.image %}
-                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
-                            {% else %}
-                            <div class="image-placeholder">
-                                <i class="fas fa-image"></i>
-                            </div>
-                            {% endif %}
-                            <div class="product-overlay">
-                                <a href="{% url 'product_detail' artisan.username product.id %}" class="quick-view-btn">
-                                    <i class="fas fa-search-plus"></i> Voir les détails
-                                </a>
-                            </div>
-                            <div class="product-badge">
-                                <span class="badge">Nouveau</span>
-                            </div>
-                        </div>
-                        <div class="product-body">
-                            <h3 class="product-title">{{ product.name }}</h3>
-                            <p class="product-excerpt">{{ product.description|truncatechars:120 }}</p>
-                            <div class="product-footer">
-                                <span class="product-date"><i class="far fa-calendar-alt"></i> {{ product.created_at|date:"d/m/Y" }}</span>
-                                <a href="{% url 'product_detail' artisan.username product.id %}" class="view-link">
-                                    En savoir plus <i class="fas fa-arrow-right"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <div class="empty-state text-center py-5">
-                <div class="empty-icon mb-4">
-                    <i class="fas fa-box-open"></i>
-                </div>
-                <h3>Aucune réalisation disponible</h3>
-                <p class="text-muted">Cette section sera bientôt mise à jour avec mes dernières créations</p>
-            </div>
-            {% endif %}
-        </div>
-
- 
-
-        <!-- Call to Action -->
-        <div class="cta-section text-center mt-5">
-            <h3 class="mb-4">Intéressé par mon travail ?</h3>
-           <a class="btn btn-primary btn-lg me-3" href="https://wa.me/{{ artisan.profile.whatsapp|urlencode }}" target="_blank">
-                <i class="fab fa-whatsapp"></i> Contacter sur WhatsApp
-            </a>
-            <a href="/{{ artisan.username }}/" class="btn btn-outline-primary btn-lg">
-                <i class="fas fa-arrow-left me-2"></i> Retour au portfolio
-            </a>
-        </div>
-    </div>
+  <!-- CTA Flottant Mobile -->
+  <div class="mobile-cta">
+    <a href="https://wa.me/{{ artisan.profile.whatsapp }}" class="whatsapp-float">
+      <i class="fab fa-whatsapp"></i>
+    </a>
+  </div>
 </div>
 
 <style>
-    :root {
-        --primary-color: #4e66f8;
-        --primary-dark: #3a4fc8;
-        --primary-light: #eef1ff;
-        --secondary-color: #6c757d;
-        --dark-color: #2d3748;
-        --light-color: #f8f9fa;
-        --border-radius: 12px;
-        --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-        --transition: all 0.3s ease;
-        --gradient: linear-gradient(135deg, var(--primary-color) 0%, #6a11cb 100%);
-    }
+/* Variables CSS */
+:root {
+  --primary: #4361ee;
+  --primary-dark: #3a56d4;
+  --text-dark: #2b2d42;
+  --text-light: #f8f9fa;
+  --bg-light: #f8f9fa;
+  --shadow: 0 4px 12px rgba(0,0,0,0.1);
+  --radius: 12px;
+}
 
-    .category-page {
-        background-color: #f8fafc;
-    }
+/* Reset Mobile */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-    .category-hero {
-        position: relative;
-        background: var(--gradient);
-        padding: 6rem 0 4rem;
-        color: white;
-        margin-bottom: 3rem;
-    }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  color: var(--text-dark);
+  background: var(--bg-light);
+  -webkit-text-size-adjust: 100%;
+}
 
-    .category-hero::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: url('https://images.unsplash.com/photo-1605106702734-205df224ecce?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') center/cover;
-        opacity: 0.1;
-    }
+/* Header Mobile */
+.mobile-header {
+  position: sticky;
+  top: 0;
+  background: white;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  box-shadow: var(--shadow);
+  z-index: 100;
+}
 
-    .hero-content {
-        position: relative;
-        z-index: 2;
-    }
+.back-button {
+  color: var(--primary);
+  font-size: 1.2rem;
+  margin-right: 15px;
+}
 
-    .breadcrumb {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 0.75rem 1rem !important;
-        border-radius: 50px;
-        display: inline-flex;
-        backdrop-filter: blur(5px);
-    }
+.mobile-header h1 {
+  font-size: 1.3rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
-    .breadcrumb-item a {
-        color: white;
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
+/* Contenu principal */
+.mobile-content {
+  padding: 15px;
+}
 
-    .breadcrumb-item.active {
-        color: rgba(255, 255, 255, 0.8);
-    }
+.category-description {
+  background: white;
+  padding: 15px;
+  border-radius: var(--radius);
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
 
-    .breadcrumb-item+.breadcrumb-item::before {
-        color: rgba(255, 255, 255, 0.6);
-    }
+/* Grille Produits */
+.mobile-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
 
-    .category-hero h1 {
-        font-size: 3rem;
-        font-weight: 700;
-        margin: 1.5rem 0 1rem;
-    }
+.product-card {
+  background: white;
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
 
-    .hero-description {
-        font-size: 1.25rem;
-        opacity: 0.9;
-        max-width: 700px;
-        margin: 0 auto;
-    }
+.product-image {
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+}
 
-    .category-description {
-        padding: 2rem 0;
-        border-bottom: 1px solid #eee;
-    }
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
 
-    .category-description .lead {
-        color: var(--secondary-color);
-        font-size: 1.15rem;
-    }
+.product-card:hover .product-image img {
+  transform: scale(1.05);
+}
 
-    .product-card {
-        background: white;
-        border-radius: var(--border-radius);
-        overflow: hidden;
-        box-shadow: var(--box-shadow);
-        transition: var(--transition);
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
+.image-placeholder {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f3f5;
+  color: #adb5bd;
+  font-size: 2rem;
+}
 
-    .product-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
-    }
+.product-info {
+  padding: 15px;
+}
 
-    .product-image-wrapper {
-        position: relative;
-        height: 250px;
-        overflow: hidden;
-    }
+.product-info h3 {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
 
-    .product-image {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: var(--transition);
-    }
+.product-info p {
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+}
 
-    .product-card:hover .product-image {
-        transform: scale(1.05);
-    }
+.view-button {
+  display: inline-block;
+  background: var(--primary);
+  color: white;
+  padding: 8px 15px;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
 
-    .image-placeholder {
-        width: 100%;
-        height: 100%;
-        background-color: #f5f7fa;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #c2c8d0;
-        font-size: 3rem;
-    }
+.view-button:hover {
+  background: var(--primary-dark);
+}
 
-    .product-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.6);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: var(--transition);
-    }
+/* CTA Mobile */
+.whatsapp-float {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background: #25D366;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.3);
+  z-index: 99;
+  transition: all 0.3s ease;
+}
 
-    .product-card:hover .product-overlay {
-        opacity: 1;
-    }
+.whatsapp-float:hover {
+  transform: scale(1.1);
+}
 
-    .quick-view-btn {
-        background-color: white;
-        color: var(--dark-color);
-        border: none;
-        padding: 0.75rem 1.5rem;
-        border-radius: 50px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: var(--transition);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        text-decoration: none;
-    }
+/* États vides */
+.empty-message {
+  text-align: center;
+  padding: 40px 20px;
+  color: #adb5bd;
+}
 
-    .quick-view-btn:hover {
-        background-color: var(--primary-color);
-        color: white;
-        transform: translateY(-2px);
-    }
+.empty-message i {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
 
-    .product-badge .badge {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        background-color: var(--primary-color);
-        color: white;
-        font-weight: 500;
-        padding: 0.35rem 0.75rem;
-    }
+/* Media Queries pour tablettes */
+@media (min-width: 768px) {
+  .mobile-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .mobile-header h1 {
+    font-size: 1.5rem;
+  }
+}
 
-    .product-body {
-        padding: 1.5rem;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
+/* Media Queries pour desktop */
+@media (min-width: 1024px) {
+  .mobile-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .mobile-content {
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
 
-    .product-title {
-        font-size: 1.25rem;
-        margin: 0 0 0.75rem 0;
-        color: var(--dark-color);
-        font-weight: 600;
-    }
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-    .product-excerpt {
-        color: #6c757d;
-        margin: 0 0 1rem 0;
-        line-height: 1.5;
-        flex-grow: 1;
-    }
-
-    .product-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 1px solid #eee;
-    }
-
-    .product-date {
-        color: #adb5bd;
-        font-size: 0.85rem;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-
-    .view-link {
-        color: var(--primary-color);
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 0.9rem;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        transition: var(--transition);
-    }
-
-    .view-link:hover {
-        color: var(--primary-dark);
-        gap: 0.5rem;
-    }
-
-    .empty-state {
-        background-color: white;
-        border-radius: var(--border-radius);
-        box-shadow: var(--box-shadow);
-        padding: 3rem;
-    }
-
-    .empty-icon {
-        font-size: 3rem;
-        color: #e9ecef;
-    }
-
-    .cta-section {
-        background-color: white;
-        border-radius: var(--border-radius);
-        padding: 3rem;
-        box-shadow: var(--box-shadow);
-    }
-
-    .btn {
-        padding: 0.75rem 1.75rem;
-        border-radius: 50px;
-        font-weight: 500;
-        transition: var(--transition);
-        display: inline-flex;
-        align-items: center;
-    }
-
-    .btn-primary {
-        background: var(--gradient);
-        border: none;
-    }
-
-    .btn-primary:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 20px rgba(78, 102, 248, 0.3);
-    }
-
-    .btn-outline-primary {
-        border: 2px solid var(--primary-color);
-        color: var(--primary-color);
-    }
-
-    .btn-outline-primary:hover {
-        background-color: var(--primary-light);
-    }
-
-    @media (max-width: 992px) {
-        .category-hero h1 {
-            font-size: 2.5rem;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .category-hero {
-            padding: 4rem 0 2rem;
-        }
-        
-        .category-hero h1 {
-            font-size: 2rem;
-        }
-        
-        .hero-description {
-            font-size: 1rem;
-        }
-        
-        .cta-section .btn {
-            width: 100%;
-            margin-bottom: 1rem;
-        }
-    }
-
-    /* Animation */
-    @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .product-card {
-        animation: fadeInUp 0.6s ease-out forwards;
-        animation-delay: calc(var(--order) * 0.1s);
-    }
+.product-card {
+  animation: fadeIn 0.5s ease-out forwards;
+  animation-delay: calc(var(--delay) * 0.1s);
+}
 </style>
 
 <script>
+// Animation des cartes
 document.addEventListener('DOMContentLoaded', function() {
-    // Add animation delays to product cards
-    document.querySelectorAll('.product-card').forEach((card, index) => {
-        card.style.setProperty('--order', index);
+  const cards = document.querySelectorAll('.product-card');
+  cards.forEach((card, index) => {
+    card.style.setProperty('--delay', index);
+  });
+  
+  // Optimisation du chargement des images
+  if ('IntersectionObserver' in window) {
+    const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+    
+    const imageObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          imageObserver.unobserve(img);
+        }
+      });
     });
     
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
-            e.preventDefault();
-            document.querySelector(this.getAttribute('href')).scrollIntoView({
-                behavior: 'smooth'
-            });
-        });
+    lazyImages.forEach(img => {
+      img.dataset.src = img.src;
+      img.src = '';
+      imageObserver.observe(img);
     });
+  }
 });
 </script>
 {% endblock %}

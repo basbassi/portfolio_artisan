@@ -1,362 +1,482 @@
-{% extends 'base.html' %}
+{% extends 'base_minimal.html' %}
+{% load static %}
 
-{% block title %}{{ product.name }} | Portfolio de {{ artisan.username }}{% endblock %}
+{% block title %}{{ product.name }} | {{ artisan.username }}{% endblock %}
 
 {% block content %}
-<div class="product-detail-container">
-    <!-- Product Header -->
-    <div class="product-header">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/{{ artisan.username }}/">Portfolio</a></li>
-                <li class="breadcrumb-item"><a href="/{{ artisan.username }}/category/{{ product.category.id }}/">{{ product.category.name }}</a></li>
-                <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
-            </ol>
-        </nav>
-        <h1>{{ product.name }}</h1>
-        <div class="product-meta">
-            <span class="category-badge">{{ product.category.name }}</span>
-            <span class="date-added">Ajouté le {{ product.created_at|date:"d/m/Y" }}</span>
-        </div>
+<div class="product-detail">
+
+  <!-- Mobile Header -->
+  <header class="mobile-header">
+    <a href="/{{ artisan.username }}/category/{{ product.category.id }}/" class="back-button">
+      <i class="fas fa-arrow-left"></i>
+    </a>
+    <h1>{{ product.name }}</h1>
+  </header>
+
+  <!-- Breadcrumb (Desktop) -->
+  <nav class="breadcrumb desktop-only">
+    <a href="/{{ artisan.username }}/">Portfolio</a>
+    <span class="divider">/</span>
+    <a href="/{{ artisan.username }}/category/{{ product.category.id }}/">{{ product.category.name }}</a>
+    <span class="divider">/</span>
+    <span class="current">{{ product.name }}</span>
+  </nav>
+
+  <!-- Product Content -->
+  <div class="product-container">
+    <!-- Product Gallery -->
+    <div class="product-gallery">
+      {% if product.image %}
+      <div class="main-image">
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" class="product-img">
+      </div>
+      {% else %}
+      <div class="image-placeholder">
+        <i class="fas fa-image"></i>
+        <span>Image non disponible</span>
+      </div>
+      {% endif %}
     </div>
 
-    <!-- Product Content -->
-    <div class="product-content">
-        <div class="product-gallery">
-            {% if product.image %}
-            <div class="main-image">
-                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid">
-            </div>
-            {% else %}
-            <div class="image-placeholder">
-                <i class="fas fa-image"></i>
-                <span>Image non disponible</span>
-            </div>
-            {% endif %}
-            
-            <!-- Thumbnails would go here if multiple images -->
+    <!-- Product Info -->
+    <div class="product-info">
+      <div class="category-badge">
+        {{ product.category.name }}
+      </div>
+      
+      <div class="product-meta">
+        <span class="date">
+          <i class="far fa-calendar-alt"></i> Ajouté le {{ product.created_at|date:"d/m/Y" }}
+        </span>
+      </div>
+      
+      <div class="product-description">
+        <h2>Description</h2>
+        <p>{{ product.description }}</p>
+      </div>
+
+      <!-- Product Details -->
+      <div class="details-section">
+        {% if product.materials %}
+        <div class="detail-item">
+          <div class="detail-icon">
+            <i class="fas fa-hammer"></i>
+          </div>
+          <div class="detail-content">
+            <h3>Matériaux</h3>
+            <p>{{ product.materials }}</p>
+          </div>
         </div>
-
-        <div class="product-info">
-            <div class="product-description">
-                <h2>Description</h2>
-                <p>{{ product.description }}</p>
-            </div>
-
-            <!-- Additional Details Section -->
-            <div class="product-details">
-                {% if product.materials %}
-                <div class="detail-item">
-                    <h3><i class="fas fa-hammer"></i> Matériaux</h3>
-                    <p>{{ product.materials }}</p>
-                </div>
-                {% endif %}
-                
-                {% if product.dimensions %}
-                <div class="detail-item">
-                    <h3><i class="fas fa-ruler-combined"></i> Dimensions</h3>
-                    <p>{{ product.dimensions }}</p>
-                </div>
-                {% endif %}
-                
-                {% if product.price %}
-                <div class="detail-item">
-                    <h3><i class="fas fa-tag"></i> Prix</h3>
-                    <p class="price">{{ product.price }} €</p>
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="product-actions">
-                <a href="/{{ artisan.username }}/category/{{ product.category.id }}/" class="btn-back">
-                    <i class="fas fa-arrow-left"></i> Retour à la catégorie
-                </a>
-                <a class="btn-contact" href="https://wa.me/{{ artisan.profile.whatsapp|urlencode }}" target="_blank">
-                <i class="fab fa-whatsapp"></i> Contacter sur WhatsApp
-            </a>
-
-            </div>
+        {% endif %}
+        
+        {% if product.dimensions %}
+        <div class="detail-item">
+          <div class="detail-icon">
+            <i class="fas fa-ruler-combined"></i>
+          </div>
+          <div class="detail-content">
+            <h3>Dimensions</h3>
+            <p>{{ product.dimensions }}</p>
+          </div>
         </div>
+        {% endif %}
+        
+        {% if product.price %}
+        <div class="detail-item">
+          <div class="detail-icon">
+            <i class="fas fa-tag"></i>
+          </div>
+          <div class="detail-content">
+            <h3>Prix</h3>
+            <p class="price">{{ product.price }} €</p>
+          </div>
+        </div>
+        {% endif %}
+      </div>
     </div>
-</div>
+  </div>
 
-<!-- Contact Modal -->
-<div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Contactez {{ artisan.username }}</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="contactForm">
-                    <div class="mb-3">
-                        <label for="contactSubject" class="form-label">Objet</label>
-                        <input type="text" class="form-control" id="contactSubject" value="À propos de {{ product.name }}" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="contactMessage" class="form-label">Message</label>
-                        <textarea class="form-control" id="contactMessage" rows="5" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Envoyer</button>
-                </form>
-            </div>
-        </div>
-    </div>
+  <!-- Fixed Action Buttons (Mobile) -->
+  <div class="mobile-actions">
+    <a href="/{{ artisan.username }}/category/{{ product.category.id }}/" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Retour
+    </a>
+    <a href="https://wa.me/{{ artisan.profile.whatsapp|default:'123456789' }}?text=Je%20suis%20intéressé%20par%20votre%20produit%20{{ product.name|urlencode }}" 
+       class="whatsapp-btn" target="_blank">
+      <i class="fab fa-whatsapp"></i> WhatsApp
+    </a>
+  </div>
 </div>
 
 <style>
 :root {
-    --primary-color: #4361ee;
-    --secondary-color: #3f37c9;
-    --accent-color: #4895ef;
-    --dark-color: #1a1a2e;
-    --light-color: #f8f9fa;
-    --gray-color: #6c757d;
-    --light-gray: #e9ecef;
-    --border-radius: 12px;
-    --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --primary: #4361ee;
+  --primary-dark: #3a56d4;
+  --text-dark: #2b2d42;
+  --text-light: #f8f9fa;
+  --gray: #6c757d;
+  --light-gray: #e9ecef;
+  --border-radius: 12px;
+  --box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  --transition: all 0.3s ease;
 }
 
-.product-detail-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
+/* Base Styles */
+.product-detail {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif;
+  color: var(--text-dark);
+}
+
+/* Mobile Header */
+.mobile-header {
+  position: sticky;
+  top: 0;
+  background: white;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  box-shadow: var(--box-shadow);
+  z-index: 100;
+}
+
+.back-button {
+  color: var(--primary);
+  font-size: 1.2rem;
+  margin-right: 15px;
+}
+
+.mobile-header h1 {
+  font-size: 1.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
 }
 
 /* Breadcrumb */
 .breadcrumb {
-    background: transparent;
-    padding: 0.5rem 0;
-    font-size: 0.9rem;
+  display: none;
+  padding: 1rem;
+  font-size: 0.9rem;
 }
 
-.breadcrumb-item a {
-    color: var(--primary-color);
-    text-decoration: none;
-    transition: var(--transition);
+.breadcrumb a {
+  color: var(--primary);
+  text-decoration: none;
 }
 
-.breadcrumb-item a:hover {
-    color: var(--secondary-color);
-    text-decoration: underline;
+.breadcrumb .divider {
+  margin: 0 8px;
+  color: var(--gray);
 }
 
-.breadcrumb-item.active {
-    color: var(--gray-color);
+.breadcrumb .current {
+  color: var(--gray);
 }
 
-/* Product Header */
-.product-header {
-    margin-bottom: 2rem;
+/* Product Container */
+.product-container {
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
 }
 
-.product-header h1 {
-    font-size: 2.2rem;
-    color: var(--dark-color);
-    margin: 0.5rem 0;
-}
-
-.product-meta {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 0.5rem;
-}
-
-.category-badge {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 50px;
-    font-size: 0.85rem;
-    font-weight: 500;
-}
-
-.date-added {
-    color: var(--gray-color);
-    font-size: 0.9rem;
-}
-
-/* Product Content */
-.product-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-}
-
+/* Product Gallery */
 .product-gallery {
-    position: relative;
+  margin-bottom: 20px;
 }
 
 .main-image {
-    border-radius: var(--border-radius);
-    overflow: hidden;
-    box-shadow: var(--box-shadow);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  box-shadow: var(--box-shadow);
 }
 
-.main-image img {
-    width: 100%;
-    height: auto;
-    display: block;
-    transition: var(--transition);
-}
-
-.main-image:hover img {
-    transform: scale(1.02);
+.product-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: var(--transition);
 }
 
 .image-placeholder {
-    height: 400px;
-    background-color: var(--light-gray);
-    border-radius: var(--border-radius);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--gray-color);
+  height: 250px;
+  background: var(--light-gray);
+  border-radius: var(--border-radius);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray);
 }
 
 .image-placeholder i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
+  font-size: 3rem;
+  margin-bottom: 10px;
 }
 
 /* Product Info */
 .product-info {
-    padding: 0 1rem;
+  padding: 0;
+}
+
+.category-badge {
+  display: inline-block;
+  background: var(--primary);
+  color: white;
+  padding: 5px 15px;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+}
+
+.product-meta {
+  margin-bottom: 20px;
+  color: var(--gray);
+  font-size: 0.9rem;
+}
+
+.product-meta .date {
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
 .product-description h2 {
-    font-size: 1.5rem;
-    color: var(--dark-color);
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--light-gray);
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--light-gray);
 }
 
 .product-description p {
-    line-height: 1.7;
-    color: var(--dark-color);
+  line-height: 1.6;
+  margin-bottom: 20px;
 }
 
-/* Product Details */
-.product-details {
-    margin: 2rem 0;
-    padding: 1.5rem;
-    background-color: var(--light-color);
-    border-radius: var(--border-radius);
+/* Details Section */
+.details-section {
+  margin: 30px 0;
 }
 
 .detail-item {
-    margin-bottom: 1.5rem;
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  align-items: flex-start;
 }
 
-.detail-item:last-child {
-    margin-bottom: 0;
+.detail-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--light-gray);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  flex-shrink: 0;
 }
 
-.detail-item h3 {
-    font-size: 1.1rem;
-    color: var(--dark-color);
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+.detail-content h3 {
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+  color: var(--text-dark);
 }
 
-.detail-item p {
-    margin: 0;
-    color: var(--gray-color);
+.detail-content p {
+  margin: 0;
+  color: var(--gray);
+  line-height: 1.5;
 }
 
 .price {
-    font-size: 1.3rem;
-    font-weight: 600;
-    color: var(--primary-color);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--primary);
 }
 
-/* Product Actions */
-.product-actions {
+/* Mobile Actions */
+.mobile-actions {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background: white;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+  z-index: 100;
+}
+
+.back-btn, .whatsapp-btn {
+  flex: 1;
+  padding: 15px;
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.back-btn {
+  background: white;
+  color: var(--primary);
+  border-right: 1px solid var(--light-gray);
+}
+
+.whatsapp-btn {
+  background: var(--primary);
+  color: white;
+}
+
+/* Desktop Styles */
+@media (min-width: 768px) {
+  .mobile-header {
+    display: none;
+  }
+  
+  .breadcrumb {
     display: flex;
-    gap: 1rem;
-    margin-top: 2rem;
-}
-
-.btn-back {
-    background: white;
-    color: var(--primary-color);
-    border: 1px solid var(--primary-color);
-    padding: 0.75rem 1.5rem;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .product-container {
+    flex-direction: row;
+    gap: 30px;
+    padding: 20px;
+  }
+  
+  .product-gallery {
+    flex: 1;
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+  }
+  
+  .product-info {
+    flex: 1;
+  }
+  
+  .mobile-actions {
+    display: none;
+  }
+  
+  /* Desktop Actions */
+  .desktop-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+  }
+  
+  .desktop-back-btn, .desktop-whatsapp-btn {
+    padding: 12px 25px;
     border-radius: var(--border-radius);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 8px;
+    font-weight: 500;
     transition: var(--transition);
-}
-
-.btn-back:hover {
-    background: var(--primary-color);
+  }
+  
+  .desktop-back-btn {
+    background: white;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+  }
+  
+  .desktop-back-btn:hover {
+    background: var(--primary);
     color: white;
-}
-
-.btn-contact {
-    background: var(--primary-color);
+  }
+  
+  .desktop-whatsapp-btn {
+    background: #25D366;
     color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: var(--border-radius);
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.btn-contact:hover {
-    background: var(--secondary-color);
+  }
+  
+  .desktop-whatsapp-btn:hover {
+    background: #128C7E;
     transform: translateY(-2px);
-    box-shadow: var(--box-shadow);
+    box-shadow: 0 4px 12px rgba(37, 211, 102, 0.3);
+  }
 }
 
-/* Responsive */
-@media (max-width: 992px) {
-    .product-content {
-        grid-template-columns: 1fr;
-    }
-    
-    .product-gallery {
-        margin-bottom: 2rem;
-    }
+@media (min-width: 992px) {
+  .product-container {
+    gap: 50px;
+    padding: 30px;
+  }
+  
+  .main-image {
+    max-height: 600px;
+  }
+  
+  .product-description h2 {
+    font-size: 1.5rem;
+  }
 }
 
-@media (max-width: 576px) {
-    .product-actions {
-        flex-direction: column;
-    }
-    
-    .btn-back, .btn-contact {
-        width: 100%;
-        justify-content: center;
-    }
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.product-container {
+  animation: fadeIn 0.5s ease-out;
 }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Contact form handling
-    const contactForm = document.getElementById('contactForm');
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            // Here you would typically send the form data to your backend
-            alert('Message envoyé avec succès !');
-            const modal = bootstrap.Modal.getInstance(document.getElementById('contactModal'));
-            modal.hide();
-        });
+  // Lazy load images
+  if ('IntersectionObserver' in window) {
+    const lazyImages = document.querySelectorAll('img[loading="lazy"]');
+    
+    const imageObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const img = entry.target;
+          img.src = img.dataset.src;
+          imageObserver.unobserve(img);
+        }
+      });
+    });
+    
+    lazyImages.forEach(img => {
+      img.dataset.src = img.src;
+      img.src = '';
+      imageObserver.observe(img);
+    });
+  }
+  
+  // Add desktop actions if needed
+  if (window.innerWidth >= 768) {
+    const actionsHTML = `
+      <div class="desktop-actions">
+        <a href="/{{ artisan.username }}/category/{{ product.category.id }}/" class="desktop-back-btn">
+          <i class="fas fa-arrow-left"></i> Retour à la catégorie
+        </a>
+        <a href="https://wa.me/{{ artisan.profile.whatsapp|default:'123456789' }}?text=Je%20suis%20intéressé%20par%20votre%20produit%20{{ product.name|urlencode }}" 
+           class="desktop-whatsapp-btn" target="_blank">
+          <i class="fab fa-whatsapp"></i> Contacter sur WhatsApp
+        </a>
+      </div>
+    `;
+    
+    const productInfo = document.querySelector('.product-info');
+    if (productInfo) {
+      productInfo.insertAdjacentHTML('beforeend', actionsHTML);
     }
+  }
 });
 </script>
 {% endblock %}
