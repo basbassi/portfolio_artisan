@@ -695,6 +695,14 @@
         alert('Une erreur réseau est survenue. Veuillez réessayer.');
       });
     });
+    // À placer dans chaque template (presentation_classic.html, etc.)
+    window.addEventListener('load', function() {
+        const height = document.body.scrollHeight;
+        window.parent.postMessage({
+            type: 'iframeResize',
+            height: height
+        }, '*');
+    });
   </script>
 </body>
 </html>

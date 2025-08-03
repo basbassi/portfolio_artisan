@@ -147,6 +147,7 @@ from .models import User, Profile, Category, Product
 def presentation(request, username):
     user = get_object_or_404(User, username=username)
     profile = user.profile
+    
     categories = Category.objects.filter(product__artisan=user).distinct()
     
     # Obtenez l'image hero en fonction du métier

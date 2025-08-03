@@ -98,7 +98,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Configuration personnalisée
 SITE_URL = 'http://127.0.0.1:8000'  # À changer en production
 SITE_NAME = 'Artisan Portfolio'
+# Autoriser l'embedding dans les iframes
+X_FRAME_OPTIONS = 'ALLOW-FROM http://127.0.0.1:8000'
 
+# Configuration CSP minimal pour le développement
+CSP_DEFAULT_SRC = ["'self'", "data:", "blob:"]
+CSP_FRAME_ANCESTORS = ["'self'", "http://127.0.0.1:8000"]
 # Email Configuration (pour les futures fonctionnalités)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 icon_path = os.path.join(settings.BASE_DIR, "static/icons/phone.png")

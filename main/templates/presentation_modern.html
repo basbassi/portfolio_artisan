@@ -1196,6 +1196,13 @@
     document.querySelectorAll('.animate-on-scroll').forEach(el => {
       observer.observe(el);
     });
+    window.addEventListener('load', function() {
+        const height = document.body.scrollHeight;
+        window.parent.postMessage({
+            type: 'iframeResize',
+            height: height
+        }, '*');
+    });
   </script>
 </body>
 </html>
