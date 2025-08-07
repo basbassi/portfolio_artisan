@@ -1406,7 +1406,98 @@ body {
         opacity: 1;
     }
 }
+/* Styles pour les boutons d'actions dans l'en-tête */
+.header-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
 
+.action-btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    font-size: 0.95rem;
+    text-decoration: none;
+}
+
+/* Bouton "Voir mon site" */
+.action-btn.preview {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 2px 8px rgba(67, 97, 238, 0.2);
+}
+
+.action-btn.preview:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+}
+
+/* Bouton "Carte de visite" */
+.action-btn.generate {
+    background: white;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 2px 8px rgba(67, 97, 238, 0.1);
+}
+
+.action-btn.generate:hover {
+    background: var(--light-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
+}
+
+/* Bouton "Changer de template" */
+.btn-outline-secondary {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: transparent;
+    border: 1px solid var(--gray-color);
+    color: var(--dark-color);
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+.btn-outline-secondary:hover {
+    background: rgba(108, 117, 125, 0.1);
+    border-color: var(--dark-color);
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Icônes dans les boutons */
+.action-btn i, 
+.btn-outline-secondary i {
+    font-size: 0.9em;
+}
+
+/* Responsive pour petits écrans */
+@media (max-width: 768px) {
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .action-btn, 
+    .btn-outline-secondary {
+        width: 100%;
+        justify-content: center;
+    }
+}
 /* Responsive Adjustments */
 @media (min-width: 768px) {
     .profile-edit-grid {
