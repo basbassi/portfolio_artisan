@@ -269,110 +269,147 @@ from django.contrib.auth.decorators import login_required
 from io import BytesIO
 import qrcode
 from reportlab.lib.utils import ImageReader
+from PIL import Image
+import qrcode
+from io import BytesIO
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import mm
+from reportlab.lib.colors import HexColor
+from reportlab.lib.utils import ImageReader
+from django.contrib.auth.decorators import login_required
 
 @login_required
 def generate_business_card(request):
     profile = request.user.profile
-
-    # --- Dimensions ---
-    card_width = 90 * mm
-    card_height = 52 * mm
-
-    # --- Couleurs ---
-    primary_color = HexColor("#BBAAB7")   # bandeau sombre en haut
-    accent_color = HexColor("#007ACC")    # couleur du texte titre
-    background_color = HexColor("#AAEBE7")  # fond clair
-
-    # --- Buffer PDF ---
+    
+    # Dimensions standard ISO 7810 ID-1 (carte de visite)
+    card_width = 85.6 * mm
+    card_height = 53.98 * mm
+    margin = 5 * mm
+    content_width = card_width - 2 * margin
+    
+    # Palette de couleurs
+    primary_color = (44, 62, 80)    # Bleu foncé (#2C3E50)
+    accent_color = (231, 76, 60)    # Rouge (#E74C3C)
+    text_color = (51, 51, 51)       # Gris foncé (#333333)
+    background_color = (255, 255, 255)  # Blanc
+    
+    # Création du PDF
     buffer = BytesIO()
     p = canvas.Canvas(buffer, pagesize=(card_width, card_height))
-
-    # --- Fond général ---
-    p.setFillColor(background_color)
-    p.rect(0, 0, card_width, card_height, fill=1, stroke=0)
-
-    # --- Bandeau en haut ---
-    p.setFillColor(primary_color)
-    p.rect(0, card_height - 12 * mm, card_width, 12 * mm, fill=1, stroke=0)
-
-    # --- Texte sur le bandeau ---
-    p.setFont("Helvetica-Bold", 12)
-    p.setFillColor(white)
-    title_text = profile.metier.name.upper() if getattr(profile, "metier", None) else "PROFESSIONNEL"
-    p.drawCentredString(card_width / 2, card_height - 8 * mm, title_text)
-
-    # --- Nom complet ---
-    full_name = (profile.user.get_full_name() or profile.user.username).upper()
+    
+    # Arrière-plan
+    p.setFillColorRGB(*[c/255 for c in background_color])
+    p.rect(0, 0, card_width, card_height, fill=True, stroke=False)
+    
+    # ---- Section Nom et Titre ----
+    header_y = card_height - margin - 8 * mm
+    
+    # Nom complet
+    full_name = f"{request.user.first_name or ''} {request.user.last_name or ''}".strip()
+    if not full_name:
+        full_name = request.user.username
+    
+    p.setFillColorRGB(*[c/255 for c in primary_color])
     p.setFont("Helvetica-Bold", 14)
-    p.setFillColor(black)
-    p.drawCentredString(card_width / 2, card_height - 18 * mm, full_name)
-
-    # --- Localisation ---
-    ville = profile.ville or "VILLE"
-    pays = profile.pays.name.upper() if getattr(profile, "pays", None) else "PAYS"
-    location = f"{ville.upper()}, {pays}"
-    p.setFont("Helvetica", 9)
-    p.drawCentredString(card_width / 2, card_height - 23 * mm, location)
-
-    # --- QR Code ---
-    qr_data = profile.share_link or "https://votresite.com"
-    qr_img = qrcode.make(qr_data)
+    p.drawString(margin, header_y, full_name)
+    
+    # Métier
+    if profile.metier:
+        p.setFillColorRGB(*[c/255 for c in accent_color])
+        p.setFont("Helvetica-Bold", 10)
+        p.drawString(margin, header_y - 6 * mm, profile.metier.name)
+    
+    # Ligne de séparation
+    p.setStrokeColorRGB(*[c/255 for c in accent_color])
+    p.setLineWidth(0.25 * mm)
+    separator_y = header_y - 9 * mm
+    p.line(margin, separator_y, card_width - margin, separator_y)
+    
+    # ---- Section Coordonnées ----
+    contact_y = separator_y - 8 * mm
+    line_height = 4 * mm
+    
+    # Téléphone
+    if profile.telephone:
+        p.setFillColorRGB(*[c/255 for c in text_color])
+        p.setFont("Helvetica", 9)
+        p.drawString(margin, contact_y, f"Tél: {profile.telephone}")
+        contact_y -= line_height
+    
+    # Email
+    if request.user.email:
+        p.setFillColorRGB(*[c/255 for c in text_color])
+        p.setFont("Helvetica", 9)
+        p.drawString(margin, contact_y, f"Email: {request.user.email}")
+        contact_y -= line_height
+    
+    # Adresse (utilise uniquement les champs existants)
+    address_parts = []
+    if profile.adresse:
+        address_parts.append(profile.adresse)
+    if profile.ville:
+        address_parts.append(profile.ville)
+    if profile.pays:
+        address_parts.append(profile.pays.name)
+    
+    if address_parts:
+        p.setFillColorRGB(*[c/255 for c in text_color])
+        p.setFont("Helvetica", 9)
+        
+        # Formatage de l'adresse sur une ou plusieurs lignes
+        address_line = ", ".join(address_parts)
+        if p.stringWidth(address_line, "Helvetica", 9) < content_width:
+            p.drawString(margin, contact_y, address_line)
+        else:
+            # Si trop long, on split sur plusieurs lignes
+            for part in address_parts:
+                if contact_y < margin:  # Plus d'espace disponible
+                    break
+                p.drawString(margin, contact_y, part)
+                contact_y -= line_height
+    
+    # ---- QR Code ----
+    qr_size = 18 * mm
+    qr_data = profile.share_link or f"https://votresite.com/{request.user.username}"
+    
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_Q,
+        box_size=6,
+        border=1,
+    )
+    qr.add_data(qr_data)
+    qr.make(fit=True)
+    
+    qr_img = qr.make_image(fill_color="#2C3E50", back_color="white")
     qr_buffer = BytesIO()
     qr_img.save(qr_buffer, format="PNG")
     qr_buffer.seek(0)
-    qr_image_reader = ImageReader(qr_buffer)
-    qr_size = 14 * mm
-    p.drawImage(qr_image_reader, card_width - qr_size - 8 * mm, 6 * mm, width=qr_size, height=qr_size, mask='auto')
-
-    # --- Coordonnées ---
-    telephone = profile.telephone or "Téléphone"
-    email = profile.user.email or "Email"
-    share_link = profile.share_link or "Lien"
-    adresse = profile.adresse or "Adresse non renseignée"
-
-    contact_info = [
-        ("static/icons/phone.png", telephone),
-        ("static/icons/link.png", share_link),
-        ("static/icons/localisation.png", adresse),
-        ("static/icons/gmail.png", email),
-    ]
-
-    # --- Position de départ ---
-    start_x = 8 * mm
-    start_y = card_height - 30 * mm
-
-    p.setFont("Helvetica", 8)
-    for i, (icon_path, text) in enumerate(contact_info):
-        y_pos = start_y - (i * 6 * mm)
-
-        # Icône
-        try:
-            icon_img = ImageReader(icon_path)
-            p.drawImage(icon_img, start_x, y_pos, width=4 * mm, height=4 * mm, mask='auto')
-        except:
-            pass  # ignore si l'icône est manquante
-
-        # Texte à côté de l'icône
-        p.setFillColor(black)
-        p.drawString(start_x + 6 * mm, y_pos + 1 * mm, text)
-
-    # --- Encadrement optionnel ---
-    p.setStrokeColor(primary_color)
-    p.setLineWidth(1)
-    p.rect(1 * mm, 1 * mm, card_width - 2 * mm, card_height - 2 * mm, stroke=1, fill=0)
-
-    # --- Finalisation ---
+    
+    p.drawImage(ImageReader(qr_buffer), 
+               card_width - margin - qr_size, 
+               margin + 5 * mm, 
+               width=qr_size, 
+               height=qr_size)
+    
+    # Bordure
+    p.setStrokeColorRGB(*[c/255 for c in primary_color])
+    p.setLineWidth(0.2 * mm)
+    p.rect(margin/2, margin/2, 
+           card_width - margin, card_height - margin, 
+           stroke=True, fill=False)
+    
     p.showPage()
     p.save()
-
+    
     pdf = buffer.getvalue()
     buffer.close()
     qr_buffer.close()
-
+    
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="carte_visite_{request.user.username}.pdf"'
     return response
-
 
 
 
