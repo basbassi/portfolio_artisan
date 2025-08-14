@@ -28,6 +28,11 @@
                 <a href="{% url 'change_template' %}" class="btn btn-outline-secondary">
                     <i class="fas fa-palette"></i> Changer de template
                 </a>
+                 <a href="{% url 'generate_portfolio_pdf' %}" class="action-btn portfolio">
+                    <i class="fas fa-book"></i>
+                    <span>Portfolio PDF</span>
+                </a>
+
             </div>
         </div>
         <div class="header-progress">
@@ -287,13 +292,18 @@
                             </div>
                             {% endif %}
                             <div class="product-actions">
+                                <div class="product-actions">
                                 <a href="{% url 'edit_product' product.id %}" class="action-icon edit" title="Modifier">
                                     <i class="fas fa-pencil-alt"></i>
                                 </a>
+                                <a href="{% url 'generate_product_pdf' product.id %}" class="action-icon pdf" title="Générer PDF">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
                                 <a href="{% url 'delete_product' product.id %}" class="action-icon delete" title="Supprimer" 
-                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');">
+                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce produit ?');">
                                     <i class="fas fa-trash-alt"></i>
                                 </a>
+                                </div>
                             </div>
                         </div>
                         
@@ -522,7 +532,129 @@ body {
     margin-bottom: 6px;
     transition: width 0.6s ease;
 }
+/* Styles améliorés pour les boutons de section */
+.dashboard-controls {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    background: white;
+    padding: 12px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
 
+.control-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.control-btn::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+.control-btn:hover {
+    background: #f1f5f9;
+    color: #475569;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.control-btn.active {
+    background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+    color: white;
+    box-shadow: 0 4px 16px rgba(67, 97, 238, 0.3);
+}
+
+.control-btn.active::before {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.control-btn i {
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.control-btn.active i {
+    color: white;
+    transform: scale(1.1);
+}
+
+.product-counter {
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    margin-left: 6px;
+    position: relative;
+    top: -1px;
+}
+
+/* Animation pour le changement de section */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dashboard-section {
+    animation: fadeInUp 0.4s ease forwards;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .control-btn {
+        padding: 10px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .control-btn i {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .control-btn {
+        justify-content: center;
+    }
+}
 .header-progress span {
     font-size: 0.85rem;
     color: var(--gray-color);
@@ -536,7 +668,14 @@ body {
     margin-bottom: 20px;
     flex-wrap: wrap;
 }
+.action-btn.portfolio {
+    text-decoration: none !important;
+}
 
+/* Ou pour tous les boutons de la classe action-btn */
+.action-btn {
+    text-decoration: none;
+}
 .control-btn {
     padding: 12px 20px;
     border: none;
@@ -552,7 +691,15 @@ body {
     transition: all 0.3s ease;
     position: relative;
 }
+.action-icon.pdf {
+    background: white;
+    color: #e53e3e;
+}
 
+.action-icon.pdf:hover {
+    background: #e53e3e;
+    color: white;
+}
 .control-btn:hover {
     background: #e2e8f0;
     transform: translateY(-2px);
@@ -1374,7 +1521,14 @@ body {
     color: #aaa;
     cursor: pointer;
 }
+.action-btn.portfolio {
+    background: #10b981;
+    color: white;
+}
 
+.action-btn.portfolio:hover {
+    background: #059669;
+}
 .close-modal:hover {
     color: var(--dark-color);
 }

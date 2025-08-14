@@ -5,6 +5,8 @@ from django.conf.urls.static import static
 from .views import congratulations
 from .views import download_qr_code
 from .views import contact_artisan
+from .views import generate_product_pdf
+from .views import generate_portfolio_pdf
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -14,6 +16,8 @@ urlpatterns = [
     path('update-profile/', views.update_profile, name='update_profile'),
     path('<username>/contact/', contact_artisan, name='contact_artisan'),
     path('generate-card/', views.generate_business_card, name='generate_business_card'),
+    path('product/<int:product_id>/pdf/', generate_product_pdf, name='generate_product_pdf'),
+    path('portfolio/pdf/', generate_portfolio_pdf, name='generate_portfolio_pdf'),
     path('change-template/', views.change_template, name='change_template'),
     path('download-qr-code/', download_qr_code, name='download_qr_code'),
     path('congratulations/', congratulations, name='congratulations'),

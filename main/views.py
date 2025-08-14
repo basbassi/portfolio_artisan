@@ -372,8 +372,98 @@ def generate_business_card(request):
     response = HttpResponse(pdf, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="carte_visite_{request.user.username}.pdf"'
     return response
-
-
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from io import BytesIO
+from reportlab.lib.utils import ImageReader
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle, Image
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+@login_required
+def generate_product_pdf(request, product_id):
+    product = get_object_or_404(Product, id=product_id, artisan=request.user)
+    
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter,
+                           rightMargin=72, leftMargin=72,
+                           topMargin=72, bottomMargin=72)
+    
+    elements = []
+    styles = getSampleStyleSheet()
+    
+    # Style du titre
+    title_style = ParagraphStyle(
+        'Title',
+        parent=styles['Heading1'],
+        fontSize=18,
+        leading=22,
+        alignment=1,
+        spaceAfter=20
+    )
+    
+    # Titre du document
+    elements.append(Paragraph(f"Fiche Produit: {product.name}", title_style))
+    
+    # Image du produit
+    if product.image:
+        try:
+            # Solution corrigée pour l'image du produit
+            img_path = product.image.path
+            img = Image(img_path, width=4*inch, height=3*inch)
+            img.hAlign = 'CENTER'
+            elements.append(img)
+            elements.append(Paragraph("<br/><br/>", styles["Normal"]))
+        except Exception as e:
+            print(f"Erreur chargement image: {e}")
+    
+    # Données du produit
+    product_data = [
+        ["Catégorie", product.category.name],
+        ["Description", product.description],
+        ["Date de création", product.created_at.strftime("%d/%m/%Y")],
+        ["Artisan", f"{request.user.get_full_name() or request.user.username}"],
+    ]
+    
+    # Tableau des informations
+    table = Table(product_data, colWidths=[2*inch, 4*inch])
+    table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (0, -1), colors.HexColor("#4361ee")),
+        ('TEXTCOLOR', (0, 0), (0, -1), colors.white),
+        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+        ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ('BACKGROUND', (1, 0), (1, -1), colors.white),
+        ('GRID', (0, 0), (-1, -1), 1, colors.lightgrey),
+    ]))
+    elements.append(table)
+    
+    # QR Code - Solution corrigée
+    elements.append(Paragraph("<br/><br/><br/>", styles["Normal"]))
+    elements.append(Paragraph("Scannez ce QR code pour accéder à mon portfolio:", styles["Normal"]))
+    
+    qr_data = request.user.profile.share_link or f"https://votresite.com/{request.user.username}/"
+    qr_img = qrcode.make(qr_data)
+    qr_buffer = BytesIO()
+    qr_img.save(qr_buffer, format="PNG")
+    qr_buffer.seek(0)
+    
+    # Utilisation directe du buffer pour l'image
+    qr_image = Image(qr_buffer, width=1.5*inch, height=1.5*inch)
+    qr_image.hAlign = 'CENTER'
+    elements.append(qr_image)
+    
+    # Génération du PDF
+    doc.build(elements)
+    pdf = buffer.getvalue()
+    buffer.close()
+    qr_buffer.close()
+    
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="fiche_produit_{product.id}.pdf"'
+    return response
 
 
 from django.contrib.auth.decorators import login_required
@@ -496,3 +586,221 @@ def change_template(request):
         form = TemplateForm(instance=profile)
     
     return render(request, 'change_template.html', {'form': form})
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from reportlab.lib.pagesizes import letter
+from io import BytesIO
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle, Image, Spacer
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.platypus.flowables import HRFlowable
+import qrcode
+from .models import Product, Profile
+
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+from reportlab.lib.pagesizes import letter
+from io import BytesIO
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle, Image, Spacer
+from reportlab.lib import colors
+from reportlab.lib.units import inch
+from reportlab.platypus.flowables import HRFlowable
+import qrcode
+from .models import Product, Profile
+
+@login_required
+def generate_portfolio_pdf(request):
+    products = Product.objects.filter(artisan=request.user).order_by('-created_at')
+    profile = request.user.profile
+    
+    # Création du buffer PDF
+    buffer = BytesIO()
+    
+    # Configuration du document avec marges symétriques
+    doc = SimpleDocTemplate(buffer, pagesize=letter,
+                          rightMargin=36, leftMargin=36,
+                          topMargin=36, bottomMargin=36)
+    
+    elements = []
+    
+    # Styles personnalisés
+    styles = getSampleStyleSheet()
+    
+    # Style du titre principal centré
+    title_style = ParagraphStyle(
+        'MainTitle',
+        parent=styles['Heading1'],
+        fontSize=18,
+        leading=22,
+        alignment=1,  # Centré
+        spaceAfter=20,
+        textColor=colors.HexColor('#2b2d42'),
+        fontName='Helvetica-Bold'
+    )
+    
+    # Style pour le sous-titre (métier)
+    subtitle_style = ParagraphStyle(
+        'SubTitle',
+        parent=styles['Heading2'],
+        fontSize=14,
+        leading=18,
+        alignment=1,  # Centré
+        spaceAfter=24,
+        textColor=colors.HexColor('#4361ee'),
+        fontName='Helvetica'
+    )
+
+    # En-tête avec logo et titre bien alignés
+    header_content = []
+    
+    # Logo centré
+    if profile.photo:
+        try:
+            logo = Image(profile.photo.path, width=1.5*inch, height=1.5*inch)
+            logo_table = Table([[logo]], colWidths=[doc.width])
+            logo_table.setStyle(TableStyle([
+                ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+                ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ]))
+            header_content.append(logo_table)
+            header_content.append(Spacer(1, 12))
+        except:
+            pass
+    
+    # Titre principal centré
+    title_text = f"<b>PORTFOLIO DE {request.user.get_full_name().upper() or request.user.username.upper()}</b>"
+    header_content.append(Paragraph(title_text, title_style))
+    
+    # Métier centré
+    if profile.metier:
+        header_content.append(Paragraph(profile.metier.name.upper(), subtitle_style))
+    
+    # Ligne de séparation alignée
+    header_content.append(HRFlowable(width="100%", thickness=1, lineCap='round', 
+                                  color=colors.HexColor("#4361ee"), spaceAfter=24))
+    
+    elements.extend(header_content)
+
+    # Dimensions fixes pour les images produits
+    IMG_WIDTH = 3.5*inch
+    IMG_HEIGHT = 2.5*inch
+    
+    # Liste des produits avec alignement parfait
+    for product in products:
+        # Tableau pour chaque produit (2 colonnes)
+        product_table_data = []
+        
+        # Colonne image (gauche)
+        img_cell = []
+        if product.image:
+            try:
+                img = Image(product.image.path, width=IMG_WIDTH, height=IMG_HEIGHT)
+                img_cell.append(img)
+            except:
+                img_cell.append(Spacer(1, 1))
+        
+        # Colonne description (droite)
+        desc_cell = [
+            Paragraph(f"<b>{product.name}</b> - <i>{product.category.name}</i>", 
+                     ParagraphStyle(
+                         'ProductTitle',
+                         fontSize=12,
+                         leading=16,
+                         textColor=colors.HexColor('#3a0ca3'),
+                         spaceAfter=12
+                     )),
+            Paragraph(f"<b>Description:</b><br/>{product.description}", 
+                     ParagraphStyle(
+                         'ProductDesc',
+                         fontSize=11,
+                         leading=14,
+                         textColor=colors.HexColor('#4a4e69'),
+                         spaceAfter=12
+                     ))
+        ]
+        
+        # Ajout des deux colonnes au tableau
+        product_table_data.append([img_cell, desc_cell])
+        
+        # Création du tableau avec espacement régulier
+        product_table = Table(product_table_data, colWidths=[IMG_WIDTH, doc.width-IMG_WIDTH-48])
+        product_table.setStyle(TableStyle([
+            ('VALIGN', (0,0), (-1,-1), 'TOP'),
+            ('LEFTPADDING', (1,0), (1,0), 12),
+            ('RIGHTPADDING', (0,0), (0,0), 12),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 12),
+        ]))
+        
+        elements.append(product_table)
+        elements.append(HRFlowable(width="100%", thickness=0.5, 
+                                 color=colors.HexColor("#e5e5e5"), spaceAfter=24))
+    
+    # Pied de page aligné
+    footer_content = []
+    
+    # Section Contact
+    footer_content.append(Paragraph("<b>CONTACT</b>", 
+                                  ParagraphStyle(
+                                      'FooterTitle',
+                                      fontSize=14,
+                                      leading=18,
+                                      alignment=0,
+                                      spaceAfter=12,
+                                      textColor=colors.HexColor('#2b2d42')
+                                  )))
+    
+    # Tableau d'informations de contact
+    contact_info = [
+        ["Téléphone:", profile.telephone or "Non renseigné"],
+        ["Email:", request.user.email],
+        ["Adresse:", f"{profile.adresse or ''}<br/>{profile.ville or ''} {profile.pays.name if profile.pays else ''}".strip()],
+    ]
+    
+    contact_table = Table(contact_info, colWidths=[1.2*inch, 4*inch])
+    contact_table.setStyle(TableStyle([
+        ('VALIGN', (0,0), (-1,-1), 'TOP'),
+        ('FONTSIZE', (0,0), (-1,-1), 11),
+        ('LEFTPADDING', (0,0), (0,-1), 0),
+        ('RIGHTPADDING', (1,0), (1,-1), 0),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+    ]))
+    footer_content.append(contact_table)
+    footer_content.append(Spacer(1, 24))
+    
+    # QR Code centré
+    qr_data = profile.share_link or f"https://votresite.com/{request.user.username}/"
+    qr_img = qrcode.make(qr_data)
+    qr_buffer = BytesIO()
+    qr_img.save(qr_buffer, format="PNG")
+    qr_buffer.seek(0)
+    
+    qr_table = Table([
+        [Image(qr_buffer, width=1.5*inch, height=1.5*inch)],
+        [Paragraph("Scannez pour visiter mon portfolio", 
+                 ParagraphStyle(
+                     'QRText',
+                     fontSize=10,
+                     leading=12,
+                     alignment=1,
+                     textColor=colors.HexColor('#6c757d')
+                 ))]
+    ], colWidths=[2*inch])
+    
+    qr_table.setStyle(TableStyle([
+        ('ALIGN', (0,0), (-1,-1), 'CENTER'),
+    ]))
+    
+    footer_content.append(qr_table)
+    elements.extend(footer_content)
+    
+    # Génération du PDF
+    doc.build(elements)
+    pdf = buffer.getvalue()
+    buffer.close()
+    qr_buffer.close()
+    
+    response = HttpResponse(pdf, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="portfolio_{request.user.username}.pdf"'
+    return response
