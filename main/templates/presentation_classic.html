@@ -14,335 +14,383 @@
   <!-- Font Awesome pour les icônes -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
-    :root {
-      --primary-color: #8B5A2B; /* Couleur bois clair */
-      --secondary-color: #5D4037; /* Couleur bois foncé */
-      --light-color: #F5F5F5;
-    }
-    
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: var(--light-color);
-    }
-    
-    .navbar-custom {
-      background-color: rgba(91, 64, 55, 0.9);
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    
-    .navbar-custom .nav-link {
-      color: white;
-      font-weight: 500;
-      padding: 0.5rem 1rem;
-      margin: 0 0.2rem;
-      transition: all 0.3s;
-    }
-    
-    .navbar-custom .nav-link:hover {
-      color: var(--light-color);
-      background-color: rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-    }
-    
-    .hero-image {
-      height: 60vh;
-      min-height: 400px;
-      object-fit: cover;
-      width: 100%;
-    }
-    
-    .logo-artisan {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 5px solid white;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      margin-top: -75px;
-      background-color: white;
-    }
-    
-    .artisan-info {
-      background-color: white;
-      border-radius: 10px;
-      padding: 2rem;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      margin-bottom: 2rem;
-    }
-    
-    /* Style pour la galerie horizontale */
-    .horizontal-gallery {
-      display: flex;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      gap: 20px;
-      padding: 20px 0;
-      -webkit-overflow-scrolling: touch;
-    }
-    
-    .horizontal-gallery::-webkit-scrollbar {
-      height: 8px;
-    }
-    
-    .horizontal-gallery::-webkit-scrollbar-track {
-      background: #f1f1f1;
-      border-radius: 10px;
-    }
-    
-    .horizontal-gallery::-webkit-scrollbar-thumb {
-      background: var(--primary-color);
-      border-radius: 10px;
-    }
-    
-    .gallery-item {
-      scroll-snap-align: start;
-      flex: 0 0 auto;
-      width: 300px;
-      text-align: center;
-    }
-    
-    .gallery-img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 8px;
-      transition: transform 0.3s;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-    
-    .gallery-img:hover {
-      transform: scale(1.05);
-    }
-    
-    .section-title {
-      color: var(--secondary-color);
-      position: relative;
-      margin-bottom: 2rem;
-      font-weight: 700;
-    }
-    
-    .section-title:after {
-      content: '';
-      position: absolute;
-      bottom: -10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      height: 3px;
-      background-color: var(--primary-color);
-    }
-    
-    .contact-info i {
-      color: var(--primary-color);
-      margin-right: 10px;
-      width: 20px;
-    }
-    
-    footer {
-      background-color: var(--secondary-color);
-      color: white;
-      padding: 2rem 0;
-      margin-top: 3rem;
-    }
-    
-    .contact-section {
-      background-color: white;
-      border-radius: 10px;
-      padding: 3rem;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      margin: 3rem auto;
-    }
-    
-    .contact-form .form-control {
-      border-radius: 5px;
-      border: 1px solid #ddd;
-      padding: 12px 15px;
-      margin-bottom: 1.5rem;
-    }
-    
-    .contact-form .form-control:focus {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 0.25rem rgba(139, 90, 43, 0.25);
-    }
-    
-    .btn-primary-custom {
-      background-color: var(--primary-color);
-      border-color: var(--primary-color);
-      padding: 10px 25px;
-      font-weight: 600;
-    }
-    
-    .btn-primary-custom:hover {
-      background-color: var(--secondary-color);
-      border-color: var(--secondary-color);
-    }
-    
-    .contact-method {
-      text-align: center;
-      padding: 2rem;
-      border-radius: 8px;
-      transition: all 0.3s;
-      height: 100%;
-      background-color: var(--light-color);
-    }
-    
-    .contact-method:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-    }
-    
-    .contact-method i {
-      font-size: 2.5rem;
-      color: var(--primary-color);
-      margin-bottom: 1rem;
-    }
-    
-    /* WhatsApp Float */
-    .whatsapp-float {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 60px;
-      height: 60px;
-      background: #25D366;
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.8rem;
-      box-shadow: 0 4px 20px rgba(37, 211, 102, 0.3);
-      z-index: 100;
-      transition: all 0.3s;
-    }
-    
-    .whatsapp-float:hover {
-      transform: scale(1.1);
-    }
+ :root {
+  --primary-color: #8B5A2B; /* Couleur bois clair */
+  --secondary-color: #5D4037; /* Couleur bois foncé */
+  --light-color: #F5F5F5;
+}
 
-    /* Avis clients */
-    .testimonials-section {
-      background-color: white;
-      padding: 4rem 0;
-      margin: 3rem 0;
-    }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--light-color);
+  padding-top: 56px; /* Pour compenser la navbar fixe */
+}
 
-    .testimonial-card {
-      background-color: var(--light-color);
-      border-radius: 10px;
-      padding: 2rem;
-      margin: 1rem;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      transition: all 0.3s ease;
-    }
+.navbar-custom {
+  background-color: rgba(91, 64, 55, 0.9);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
 
-    .testimonial-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.15);
-    }
+.navbar-custom .nav-link {
+  color: white;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  margin: 0 0.2rem;
+  transition: all 0.3s;
+}
 
-    .client-rating {
-      color: #FFD700;
-      margin-bottom: 1rem;
-    }
+.navbar-custom .nav-link:hover {
+  color: var(--light-color);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
 
-    .client-name {
-      font-weight: bold;
-      margin-top: 1rem;
-      color: var(--secondary-color);
-    }
+/* Hero Section Styles */
+.hero-section {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  margin-bottom: 20px;
+}
 
-    .client-date {
-      font-size: 0.8rem;
-      color: #777;
-    }
+.hero-image {
+  width: 100%;
+  height: auto;
+  min-height: 300px;
+  max-height: 80vh;
+  object-fit: cover;
+  object-position: center center;
+  display: block;
+}
 
-    /* Slogans */
-    .slogan-section {
-      background-color: var(--primary-color);
-      color: white;
-      padding: 3rem 0;
-      text-align: center;
-      margin: 3rem 0;
-    }
+/* Profile Image Styles */
+.logo-artisan {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center center;
+  border: 5px solid white;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  margin-top: -75px;
+  background-color: white;
+  position: relative;
+  z-index: 100;
+}
 
-    .slogan-item {
-      padding: 1.5rem;
-      margin: 1rem;
-    }
+.artisan-info {
+  background-color: white;
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+  position: relative;
+  z-index: 90;
+}
 
-    .slogan-icon {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      color: white;
-    }
+/* Gallery Styles */
+.horizontal-gallery {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 20px;
+  padding: 20px 0;
+  -webkit-overflow-scrolling: touch;
+}
 
-    .slogan-text {
-      font-size: 1.2rem;
-      font-style: italic;
-    }
-    
-    @media (max-width: 768px) {
-      .logo-artisan {
-        width: 120px;
-        height: 120px;
-        margin-top: -60px;
-      }
-      
-      .gallery-img {
-        height: 180px;
-      }
-      
-      .gallery-item {
-        width: 250px;
-      }
-      
-      .contact-section {
-        padding: 2rem 1rem;
-      }
-    }
-  </style>
-  <style>
-    .category-title {
-        font-family: 'Montserrat', sans-serif;
-        color: var(--secondary-color);
-        font-size: 1.3rem;
-        font-weight: 700;
-        margin-top: 1.2rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        position: relative;
-        display: inline-block;
-        padding: 0 10px;
-    }
+.horizontal-gallery::-webkit-scrollbar {
+  height: 8px;
+}
 
-    .category-title:before, 
-    .category-title:after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        width: 20px;
-        height: 2px;
-        background-color: var(--primary-color);
-    }
+.horizontal-gallery::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
 
-    .category-title:before {
-        left: -25px;
-    }
+.horizontal-gallery::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 10px;
+}
 
-    .category-title:after {
-        right: -25px;
-    }
+.gallery-item {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+  width: 300px;
+  text-align: center;
+}
 
-    .gallery-item:hover .category-title {
-        color: var(--primary-color);
-    }
+.gallery-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  transition: transform 0.3s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
 
-    .gallery-item:hover .category-title:before,
-    .gallery-item:hover .category-title:after {
-        width: 30px;
-    }
+.gallery-img:hover {
+  transform: scale(1.05);
+}
+
+/* Section Titles */
+.section-title {
+  color: var(--secondary-color);
+  position: relative;
+  margin-bottom: 2rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.section-title:after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 3px;
+  background-color: var(--primary-color);
+}
+
+/* Contact Info */
+.contact-info i {
+  color: var(--primary-color);
+  margin-right: 10px;
+  width: 20px;
+}
+
+/* Footer */
+footer {
+  background-color: var(--secondary-color);
+  color: white;
+  padding: 2rem 0;
+  margin-top: 3rem;
+}
+
+/* Contact Section */
+.contact-section {
+  background-color: white;
+  border-radius: 10px;
+  padding: 3rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin: 3rem auto;
+}
+
+.contact-form .form-control {
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  padding: 12px 15px;
+  margin-bottom: 1.5rem;
+}
+
+.contact-form .form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.25rem rgba(139, 90, 43, 0.25);
+}
+
+.btn-primary-custom {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+  padding: 10px 25px;
+  font-weight: 600;
+  color: white;
+}
+
+.btn-primary-custom:hover {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+  color: white;
+}
+
+/* Contact Methods */
+.contact-method {
+  text-align: center;
+  padding: 2rem;
+  border-radius: 8px;
+  transition: all 0.3s;
+  height: 100%;
+  background-color: var(--light-color);
+}
+
+.contact-method:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.contact-method i {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+/* WhatsApp Float Button */
+.whatsapp-float {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background: #25D366;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.3);
+  z-index: 1000;
+  transition: all 0.3s;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.1);
+}
+
+/* Testimonials */
+.testimonials-section {
+  background-color: white;
+  padding: 4rem 0;
+  margin: 3rem 0;
+}
+
+.testimonial-card {
+  background-color: var(--light-color);
+  border-radius: 10px;
+  padding: 2rem;
+  margin: 1rem;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.client-rating {
+  color: #FFD700;
+  margin-bottom: 1rem;
+}
+
+.client-name {
+  font-weight: bold;
+  margin-top: 1rem;
+  color: var(--secondary-color);
+}
+
+.client-date {
+  font-size: 0.8rem;
+  color: #777;
+}
+
+/* Slogans Section */
+.slogan-section {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 3rem 0;
+  text-align: center;
+  margin: 3rem 0;
+}
+
+.slogan-item {
+  padding: 1.5rem;
+  margin: 1rem;
+}
+
+.slogan-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: white;
+}
+
+.slogan-text {
+  font-size: 1.2rem;
+  font-style: italic;
+}
+
+/* Category Titles */
+.category-title {
+  font-family: 'Montserrat', sans-serif;
+  color: var(--secondary-color);
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-top: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  position: relative;
+  display: inline-block;
+  padding: 0 10px;
+}
+
+.category-title:before, 
+.category-title:after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 2px;
+  background-color: var(--primary-color);
+}
+
+.category-title:before {
+  left: -25px;
+}
+
+.category-title:after {
+  right: -25px;
+}
+
+.gallery-item:hover .category-title {
+  color: var(--primary-color);
+}
+
+.gallery-item:hover .category-title:before,
+.gallery-item:hover .category-title:after {
+  width: 30px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .logo-artisan {
+    width: 120px;
+    height: 120px;
+    margin-top: -60px;
+    margin-bottom: 15px;
+  }
+  
+  .hero-image {
+    min-height: 250px;
+    max-height: 60vh;
+  }
+  
+  .gallery-img {
+    height: 180px;
+  }
+  
+  .gallery-item {
+    width: 250px;
+  }
+  
+  .contact-section {
+    padding: 2rem 1rem;
+  }
+
+  .artisan-info {
+    margin-top: 20px;
+  }
+}
+
+@media (max-width: 576px) {
+  .logo-artisan {
+    margin-top: -50px;
+  }
+  
+  .hero-image {
+    min-height: 200px;
+  }
+}
 </style>
 
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
@@ -379,12 +427,16 @@
 
   <!-- Hero Image -->
   <section id="home" class="hero-section">
+  <div class="hero-container" style="width:100%; height:100%;">
     {% if hero_image %}
-        <img src="{{ hero_image }}" class="hero-image" alt="Atelier de {{ artisan.get_full_name }}">
+      <img src="{{ hero_image }}" class="hero-image" alt="Atelier de {{ artisan.get_full_name }}" 
+           style="display:block; width:100%; height:100%; object-fit:cover;">
     {% else %}
-        <img src="{% static 'static/icons/2.jpeg' %}" class="hero-image" alt="Atelier de menuiserie">
+      <img src="{% static 'static/icons/2.jpeg' %}" class="hero-image" alt="Atelier de menuiserie"
+           style="display:block; width:100%; height:100%; object-fit:cover;">
     {% endif %}
-  </section>
+  </div>
+</section>
 
   <!-- Main Content -->
   <div class="container mt-4">

@@ -315,7 +315,7 @@ def generate_business_card(request):
     p.drawCentredString(card_width / 2, card_height - 23 * mm, location)
 
     # --- QR Code ---
-    qr_data = profile.share_link or "https://votresite.com"
+    qr_data = profile.share_link or "https://arti222.pythonanywhere.com"
     qr_img = qrcode.make(qr_data)
     qr_buffer = BytesIO()
     qr_img.save(qr_buffer, format="PNG")
@@ -444,7 +444,7 @@ def generate_product_pdf(request, product_id):
     elements.append(Paragraph("<br/><br/><br/>", styles["Normal"]))
     elements.append(Paragraph("Scannez ce QR code pour accéder à mon portfolio:", styles["Normal"]))
     
-    qr_data = request.user.profile.share_link or f"https://votresite.com/{request.user.username}/"
+    qr_data = request.user.profile.share_link or f"https://arti222.pythonanywhere.com/{request.user.username}/"
     qr_img = qrcode.make(qr_data)
     qr_buffer = BytesIO()
     qr_img.save(qr_buffer, format="PNG")
@@ -518,7 +518,7 @@ from django.contrib.auth.decorators import login_required
 def download_qr_code(request):
     """Génère et télécharge uniquement le QR code du lien de partage"""
     profile = request.user.profile
-    qr_data = profile.share_link or "https://votresite.com"
+    qr_data = profile.share_link or "https://arti222.pythonanywhere.com"
     
     # Création du QR code avec un design légèrement amélioré
     qr = qrcode.QRCode(
@@ -770,7 +770,7 @@ def generate_portfolio_pdf(request):
     footer_content.append(Spacer(1, 24))
     
     # QR Code centré
-    qr_data = profile.share_link or f"https://votresite.com/{request.user.username}/"
+    qr_data = profile.share_link or f"https://arti222.pythonanywhere.com/{request.user.username}/"
     qr_img = qrcode.make(qr_data)
     qr_buffer = BytesIO()
     qr_img.save(qr_buffer, format="PNG")
